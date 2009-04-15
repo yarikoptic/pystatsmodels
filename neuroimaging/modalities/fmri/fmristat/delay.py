@@ -270,7 +270,7 @@ class DelayContrastOutput(TOutput):
 
     def __init__(self, coordmap, contrast, IRF=None, dt=0.01, delta=None, 
                  subpath='delays', clobber=False, path='.',
-                 ext='.hdr', frametimes=[], **kw):
+                 ext='.hdr', volume_start_times=[], **kw):
         """
         :Parameters:
             `coordmap` : TODO
@@ -291,14 +291,14 @@ class DelayContrastOutput(TOutput):
                 TODO
             `ext` : string
                 TODO
-            `frametimes` : TODO
+            `volume_start_times` : TODO
                 TODO
             `kw` : dict
                 Passed through to the constructor of `TContrastOutput`
             
         """
         TContrastOutput.__init__(self, coordmap, contrast, subpath=subpath,
-                                 clobber=clobber, frametimes=frametimes, **kw)
+                                 clobber=clobber, volume_start_times=volume_start_times, **kw)
         self.IRF = IRF
         self.dt = dt
         if delta is None:
@@ -308,7 +308,7 @@ class DelayContrastOutput(TOutput):
         self.path = path
         self.subpath = subpath
         self.clobber = clobber
-        self._setup_output_delay(path, clobber, subpath, ext, frametimes)
+        self._setup_output_delay(path, clobber, subpath, ext, volume_start_times)
 
     def _setup_contrast(self, time=None):
         """
@@ -317,7 +317,7 @@ class DelayContrastOutput(TOutput):
 
         self.contrast.compute_matrix(time=time)
 
-    def _setup_output_delay(self, path, clobber, subpath, ext, frametimes):
+    def _setup_output_delay(self, path, clobber, subpath, ext, volume_start_times):
         """
         Setup the output for contrast, the DelayContrast. One t, sd, and
         effect img is output for each row of contrast.weights. Further,
@@ -334,7 +334,7 @@ class DelayContrastOutput(TOutput):
                 TODO
             `ext` : TODO
                 TODO
-            `frametimes` : TODO
+            `volume_start_times` : TODO
                 TODO
 
         :Returns: ``None``
@@ -386,7 +386,7 @@ class DelayContrastOutput(TOutput):
             outfile.close()
 
 
-            ftime = frametimes
+            ftime = volume_start_times
 
             def g(time=None, **extra):
                 return np.squeeze(np.dot(l, self.contrast.term(time=time,
@@ -450,7 +450,7 @@ class DelayHRF(hrf.SpectralHRF):
         hrf.SpectralHRF.__init__(self, input_hrf, spectral=spectral,
                                  names=['hrf'], **keywords)
 
-    def deltaPCA(self, tmax=50., lower=-15.0, delta=np.arange(-4.5,4.6,0.1)):
+    def deltaPCA(self, tmax=50., lower=-15.0, delta=None):
         """
         Perform an expansion of fn, shifted over the values in delta.
         Effectively, a Taylor series approximation to fn(t+delta), in delta,
@@ -501,6 +501,8 @@ class DelayHRF(hrf.SpectralHRF):
         >>>
         """
 
+        if delta is None: delta = np.arange(-4.5,4.6,0.1)
+        
         time = np.arange(lower, tmax, self.dt)
         irf = self.IRF
 
