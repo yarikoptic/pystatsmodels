@@ -317,6 +317,9 @@ class RLMResults(LikelihoodModelResults):
                     *np.dot(np.dot(W_inv, np.dot(model._exog.T,model._exog)),\
                     W_inv)
         self.bse = np.sqrt(np.diag(self.bcov_scaled))
+
+#    def conf_int(self, alpha=.05, cols=None):
+
         
 if __name__=="__main__":
 #NOTE: This is to be removed
