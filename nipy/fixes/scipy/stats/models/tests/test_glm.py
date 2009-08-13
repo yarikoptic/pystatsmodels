@@ -424,18 +424,12 @@ class test_glm_invgauss(check_model_results):
         Used the rndivgx.ado file provided by Hardin and Hilbe to
         generate the data.
         '''
-        
-        
+          
         from model_results import inv_gauss
         self.res2 = inv_gauss()
         self.res1 = GLM(self.res2.endog, self.res2.exog, \
                 family=models.family.InverseGaussian()).fit()
 
-    def setup(self):
-        if 1:  #replace by if not haverpy: this is just a test example
-            #import nose
-            raise nose.SkipTest('requires rpy')
-        
     def check_params(self, params1, params2):
         assert_almost_equal(params1, params2, DECIMAL)
 
