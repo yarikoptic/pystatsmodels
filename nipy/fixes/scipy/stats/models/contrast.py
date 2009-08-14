@@ -136,7 +136,7 @@ def contrastfromcols(L, D, pseudo=None):
     D = np.asarray(D)
 
     n, p = D.shape
-
+    
     if L.shape[0] != n and L.shape[1] != p:
         raise ValueError, 'shape of L and D mismatched'
 
@@ -205,6 +205,12 @@ if __name__=="__main__":
     new_term2 = np.column_stack((noise,X[:,2]))
     c2 = Contrast(new_term2, X)
 # Is this correct?  0 0 .156 0 0 0 0 0 0 0 ?
+
+## YAC ##
+    zero = np.zeros((40,))
+    new_term3 = np.column_stack((zero,X[:,2]))
+    c3 = Contrast(new_term3, X)
+    test2 = [0]*2 + [1] + [0]*7
 
 
 
