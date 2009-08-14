@@ -9,6 +9,8 @@ class ContrastResults(object):
     a parametric model. The class does nothing, it is a container
     for the results from T and F contrasts.
     """
+    
+    #JP: what is this class supposed to be, just a container for a few numbers?
 
     def __init__(self, t=None, F=None, sd=None, effect=None, df_denom=None,
                  df_num=None):
