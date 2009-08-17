@@ -11,8 +11,6 @@ class ContrastResults(object):
     a parametric model. The class does nothing, it is a container
     for the results from T and F contrasts.
     """
-    
-    #JP: what is this class supposed to be, just a container for a few numbers?
 
     def __init__(self, t=None, F=None, sd=None, effect=None, df_denom=None,
                  df_num=None):
@@ -20,13 +18,16 @@ class ContrastResults(object):
             self.F = F
             self.df_denom = df_denom
             self.df_num = df_num
+            #JP: rename to pval, (or 2nd choice p_value)
+            #appreviation plus underline is difficult to remember
             self.p_val = 1 - f.cdf(F, df_num, df_denom)
         else:
             self.t = t
             self.sd = sd
             self.effect = effect
             self.df_denom = df_denom
-            self.p_val = 1 - student_t.cdf(t, df_denom)
+            #JP: rename p_val
+            self.p_val = 1 - student_t.cdf(np.abs(t), df_denom)
 
     def __array__(self):
         if hasattr(self, "F"):
