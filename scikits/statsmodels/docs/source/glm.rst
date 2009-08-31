@@ -10,8 +10,8 @@ Generalized Linear Models
 Introduction
 ------------
 
-Generalized linear models currently supports estimation using the one-parameter 
-exponential families.
+.. automodule:: scikits.statsmodels.glm
+
 
 Examples
 --------
@@ -47,12 +47,14 @@ Model and Result Classes
 
 .. autosummary::
    :toctree: generated/
-
+   
    GLM
    GLMResults
 
 Families
 ^^^^^^^^
+
+
 
 The distribution families currently implemented are
 
@@ -61,8 +63,8 @@ The distribution families currently implemented are
 .. autosummary::
    :toctree: generated/
    
-   Binomial
    Family
+   Binomial
    Gamma
    Gaussian
    InverseGaussian
