@@ -24,8 +24,12 @@ Examples
     rlm_model = models.RLM(data.endog, data.exog, M=models.robust.norms.HuberT())
     rlm_results = rlm_model.fit()
     print rlm_results.params
-    
 
+see also the `examples` and the `tests` folders
+
+
+Module Reference
+----------------
 
 Model and Result Classes
 ^^^^^^^^^^^^^^^^^^^^^^^^
