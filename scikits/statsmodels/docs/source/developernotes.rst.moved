@@ -34,14 +34,22 @@ generated at run time using R via RPy or can be obtained from another
 statistical package and hard coded.
 .. TODO: link to examples of both of these in the test folder
 
-Launchpad
-=========
-Statsmodels code base is hosted on `Launchpad <https://launchpad.net/>`_. To 
-contribute you will need to `sign up for a Launchpad account <https://login.launchpad.net/vRDLGvcCNXXjP3F1/+new_account>`_.
+How to Contribute
+~~~~~~~~~~~~~~~~~
 
 **Repository:** http://code.launchpad.net/statsmodels
 
 **Bug Tracker:**  https://bugs.launchpad.net/statsmodels
+
+**Mailing List:** http://groups.google.com/group/pystatsmodels?hl=en
+
+Launchpad
+=========
+
+Statsmodels code base is hosted on `Launchpad <https://launchpad.net/>`_. To 
+contribute you will need to `sign up for a Launchpad account <https://login.launchpad.net/vRDLGvcCNXXjP3F1/+new_account>`_.
+
+**Repository:** http://code.launchpad.net/statsmodels
 
 Version Control and Bzr
 =======================
@@ -189,16 +197,8 @@ changes from one and return to another, I have to type: ::
 
     > bzr pull
 
-And it will pull down all of the changes from your branch.  
-
-The last thing to know is that you will want to keep track of changes in trunk.
-To do this type: ::
-
-    > bzr merge lp:statsmodels
-    > bzr commit -m"Merged with trunk"
-    > bzr push
-
-That's basically it.  You should be up and running with bzr now.
+And it will pull down all of the changes from your branch.  That's basically it.
+You should be up and running with bzr now.
 
 
 A few helpful commands
@@ -243,7 +243,7 @@ Mailing List
 ============
 
 Most of our developer conversations take place on our `psystatsmodels 
-google group mailing list.
+google group mailing list
 
 **Mailing List:** http://groups.google.com/group/pystatsmodels?hl=en
 
