@@ -10,7 +10,7 @@
 # Build docs during build
 override_dh_auto_build:
 	dh_auto_build
-	: # Build Documentation XXX
+	: # Build Documentation
 ifeq (,$(filter nodoc,$(DEB_BUILD_OPTIONS)))
 	PYTHONPATH=$(CURDIR) $(MAKE) -C scikits/statsmodels/docs html
 	mv scikits/statsmodels/docs/build/* build/
@@ -18,9 +18,8 @@ ifeq (,$(filter nodoc,$(DEB_BUILD_OPTIONS)))
 endif
 
 override_dh_clean:
-	# XXX
-	rm -rf build *-stamp *.egg-info
 	dh_clean
+	rm -rf build *-stamp *.egg-info scikits/statsmodels/docs/source/generated
 
 # Prune toplevel scikits/__init__.py to avoid conflicts across future
 # scikits- packages, and rely on pysupport to create such one if
@@ -28,9 +27,12 @@ override_dh_clean:
 override_dh_auto_install: ${PYVERS:%=python-install%}
 	dh_auto_install
 	find debian -wholename \*scikits/__init__.py -delete
+	: # strip docs/ since they aren't really a Python module, there is -doc for it
+	rm -rf debian/python-scikits-statsmodels/usr/share/pyshared/scikits/statsmodels/docs
 
-# XXX is check done automagically? setup.py test knows it
-
+override_dh_auto_test:
+	: # Test and do not exit on failure since there are knowntofail atm
+	python setup.py test || :
 
 ## immediately useable documentation and exemplar scripts/data
 override_dh_compress:
@@ -39,4 +41,4 @@ override_dh_compress:
 override_dh_installdocs:
 	: # Use jquery from Debian package, so prune shipped one
 	-rm ./build/html/_static/jquery.js
-	# dh_installdocs -A AUTHORS README
+	dh_installdocs

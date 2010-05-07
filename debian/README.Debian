@@ -1,6 +1,12 @@
 statsmodels for Debian
 ----------------------
 
-<possible notes regarding this package - if none, delete this file>
+Just a few handy references for those in need:
 
- -- Yaroslav Halchenko <debian@onerussian.com>  Thu, 06 May 2010 23:02:18 -0400
+Repository: http://code.launchpad.net/statsmodels
+Documentation: http://statsmodels.sourceforge.net/
+Pypi: http://pypi.python.org/pypi/scikits.statsmodels
+Mailing List: http://groups.google.com/group/pystatsmodels?hl=en
+Bug Tracker: https://bugs.launchpad.net/statsmodels
+
+ -- Yaroslav Halchenko <debian@onerussian.com>, Fri,  7 May 2010 09:59:10 -0400
