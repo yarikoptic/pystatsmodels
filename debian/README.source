@@ -1,0 +1,8 @@
+statsmodels for Debian
+----------------------
+
+For greater flexibility and ease to cherry pick fixes, orig.tar.gz
+generated directly from git repository which is git-bzr'ed from
+upstream bzr repository at lp.
+
+ -- Yaroslav Halchenko <debian@onerussian.com>, Fri,  7 May 2010 09:57:26 -0400
