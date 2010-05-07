@@ -12,18 +12,21 @@ override_dh_auto_build:
 	dh_auto_build
 	: # Build Documentation XXX
 ifeq (,$(filter nodoc,$(DEB_BUILD_OPTIONS)))
-	PYTHONPATH=`/bin/ls -d $$PWD/build/lib.*$(PYVER)` $(MAKE) -C scikits/statsmodels/doc html
+	PYTHONPATH=$(CURDIR) $(MAKE) -C scikits/statsmodels/docs html
+	mv scikits/statsmodels/docs/build/* build/
+	rm -rf statsmodels/docs/source/generated/
 endif
 
 override_dh_clean:
 	# XXX
-	rm -rf build doc/_build doc/auto_examples *-stamp scikits.learn.egg-info scikits/learn/datasets/__config__.py
+	rm -rf build *-stamp *.egg-info
 	dh_clean
 
 # Prune toplevel scikits/__init__.py to avoid conflicts across future
 # scikits- packages, and rely on pysupport to create such one if
 # necessary
 override_dh_auto_install: ${PYVERS:%=python-install%}
+	dh_auto_install
 	find debian -wholename \*scikits/__init__.py -delete
 
 # XXX is check done automagically? setup.py test knows it
@@ -35,5 +38,5 @@ override_dh_compress:
 
 override_dh_installdocs:
 	: # Use jquery from Debian package, so prune shipped one
-	-rm doc/_build/html/_static/jquery.js
+	-rm ./build/html/_static/jquery.js
 	# dh_installdocs -A AUTHORS README

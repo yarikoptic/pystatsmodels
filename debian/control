@@ -26,7 +26,6 @@ Description: classes and functions for the estimation of statistical models
 
 Package: python-scikits-statsmodels-doc
 Architecture: all
-Architecture: all
 Section: doc
 Depends: ${misc:Depends}, libjs-jquery
 Suggests: python-scikits-statsmodels
