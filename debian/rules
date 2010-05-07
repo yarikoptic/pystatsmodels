@@ -1,0 +1,39 @@
+#!/usr/bin/make -f
+# -*- mode: makefile; coding: utf-8 -*-
+
+# Uncomment this to turn on verbose mode.
+#export DH_VERBOSE=1
+
+%:
+	dh  $@
+
+# Build docs during build
+override_dh_auto_build:
+	dh_auto_build
+	: # Build Documentation XXX
+ifeq (,$(filter nodoc,$(DEB_BUILD_OPTIONS)))
+	PYTHONPATH=`/bin/ls -d $$PWD/build/lib.*$(PYVER)` $(MAKE) -C scikits/statsmodels/doc html
+endif
+
+override_dh_clean:
+	# XXX
+	rm -rf build doc/_build doc/auto_examples *-stamp scikits.learn.egg-info scikits/learn/datasets/__config__.py
+	dh_clean
+
+# Prune toplevel scikits/__init__.py to avoid conflicts across future
+# scikits- packages, and rely on pysupport to create such one if
+# necessary
+override_dh_auto_install: ${PYVERS:%=python-install%}
+	find debian -wholename \*scikits/__init__.py -delete
+
+# XXX is check done automagically? setup.py test knows it
+
+
+## immediately useable documentation and exemplar scripts/data
+override_dh_compress:
+	dh_compress -X.py -X.html -X.pdf -X.css -X.jpg -X.txt -X.js -X.json -X.rtc
+
+override_dh_installdocs:
+	: # Use jquery from Debian package, so prune shipped one
+	-rm doc/_build/html/_static/jquery.js
+	# dh_installdocs -A AUTHORS README

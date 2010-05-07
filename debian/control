@@ -1,0 +1,35 @@
+Source: statsmodels
+Section: python
+Priority: optional
+Maintainer: Experimental Psychology Maintainers <pkg-exppsy-maintainers@lists.alioth.debian.org>
+Uploaders: Yaroslav Halchenko <debian@onerussian.com>, Michael Hanke <michael.hanke@gmail.com>
+Build-Depends: debhelper (>= 7.0.50~), python-support (>= 0.6), python-scipy, python-nose, python-setuptools, python-matplotlib
+Standards-Version: 3.8.4
+Homepage: http://statsmodels.sourceforge.net/
+Vcs-Git: git://git.debian.org/pkg-exppsy/statsmodels.git
+Vcs-Browser: http://git.debian.org/?p=pkg-exppsy/statsmodels.git;a=summary
+
+Package: python-scikits-statsmodels
+Architecture: all
+Depends: ${misc:Depends}, ${python:Depends}, python-numpy, python-scipy
+Provides: ${python:Provides}
+XB-Python-Version: ${python:Versions}
+Recommends: python-matplotlib, python-nose, python-rpy
+Description: classes and functions for the estimation of statistical models
+ scikits.statsmodels is a pure Python package that provides classes
+ and functions for the estimation of several categories of statistical
+ models. These currently include linear regression models, OLS, GLS,
+ WLS and GLS with AR(p) errors, generalized linear models for six
+ distribution families and M-estimators for robust linear models. An
+ extensive list of result statistics are avalable for each estimation
+ problem.
+
+Package: python-scikits-statsmodels-doc
+Architecture: all
+Architecture: all
+Section: doc
+Depends: ${misc:Depends}, libjs-jquery
+Suggests: python-scikits-statsmodels
+Description: documentation and examples for python-scikits-statsmodels
+ This package contains HTML documentation and example scripts for
+ python-scikits-statsmodels.
