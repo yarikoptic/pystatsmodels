@@ -1,4 +1,4 @@
-statsmodels (0.2.0-1) unstable; urgency=low
+statsmodels (0.2.0+bzr1990-1) unstable; urgency=low
 
   * Initial release (Closes: #570604)
 
