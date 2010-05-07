@@ -36,7 +36,7 @@ override_dh_auto_test:
 
 ## immediately useable documentation and exemplar scripts/data
 override_dh_compress:
-	dh_compress -X.py -X.html -X.pdf -X.css -X.jpg -X.txt -X.js -X.json -X.rtc
+	dh_compress -X.py -X.html -X.pdf -X.css -X.jpg -X.txt -X.js -X.json -X.rtc -X.inv
 
 override_dh_installdocs:
 	: # Use jquery from Debian package, so prune shipped one
