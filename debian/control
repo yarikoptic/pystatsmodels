@@ -1,7 +1,7 @@
 Source: statsmodels
 Section: python
 Priority: optional
-Maintainer: Experimental Psychology Maintainers <pkg-exppsy-maintainers@lists.alioth.debian.org>
+Maintainer: NeuroDebian Team <team@neuro.debian.net>
 Uploaders: Yaroslav Halchenko <debian@onerussian.com>, Michael Hanke <michael.hanke@gmail.com>
 Build-Depends: debhelper (>= 7.0.50~), python-support (>= 0.6), python-all, python-scipy, python-nose, python-setuptools, python-matplotlib, python-sphinx
 Standards-Version: 3.8.4
