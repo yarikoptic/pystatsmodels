@@ -12,7 +12,8 @@ override_dh_auto_build:
 	dh_auto_build
 	: # Build Documentation
 ifeq (,$(filter nodoc,$(DEB_BUILD_OPTIONS)))
-	PYTHONPATH=$(CURDIR) $(MAKE) -C scikits/statsmodels/docs html
+	export PYTHONPATH=$(CURDIR) MPLCONFIGDIR=$(CURDIR)/build HOME=$(CURDIR)/build; \
+	 $(MAKE) -C scikits/statsmodels/docs html
 	mv scikits/statsmodels/docs/build/* build/
 	rm -rf statsmodels/docs/source/generated/
 endif
