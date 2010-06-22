@@ -1,6 +1,6 @@
 """
 This is the VAR class adapted from pymaclab.
-"""                                         
+"""
 from __future__ import division
 import copy as COP
 import scipy as S
@@ -30,7 +30,7 @@ class VAR2(object):
     """
     Parameters
     ----------
-    data 
+    data
     laglen
     useconst
     """
@@ -92,21 +92,21 @@ class VAR2(object):
         self.omega = omega
         #omega_beta_ols, the covariance of each equation
         XTXinv = results.normalized_cov_params[:ncoefs,:ncoefs]
-        obols = map(np.multiply, [XTXinv]*nvars, np.diag(omega)) 
+        obols = map(np.multiply, [XTXinv]*nvars, np.diag(omega))
         self.omega_beta_ols = np.asarray(obols)
 #TODO: this is deja vu... this is all in SUR is it not?
         self.omega_beta_va = map(np.diag, obols)
         #Get GLS Covariance
         self.X = X # remove after testing
         self.XTXinv =XTXinv # iXX in old VAR
-        # this is just a list of length nvars, with each 
+        # this is just a list of length nvars, with each
         # XeeX where e is the residuals for that equation
         # really just a scaling argument
         XeeX = [chain_dot(X.T, resid[:,i][:,None], resid[:,i][:,None].T, X) for i in range(nvars)]
 #        XeeX = map(np.dot, map(np.dot, [X.T]*nvars,resid.T),
 #            map(np.dot, resid.T, [X]*nvars))
         self.XeeX = XeeX #TODO: REMOVE
-        obgls = np.array(map(chain_dot, [XTXinv]*nvars, XeeX, 
+        obgls = np.array(map(chain_dot, [XTXinv]*nvars, XeeX,
                 [XTXinv]*nvars))
         self.omega_beta_gls = obgls
         self.omega_beta_gls_va = map(np.diag, obgls)
@@ -126,7 +126,7 @@ class VAR2(object):
         avobs = self.avobs
         useconst = self._useconst
 
-        #demean y 
+        #demean y
         data = self.data
         self.dmdata = data - data.mean(0) # need to attach everything?
         if useconst:
@@ -168,7 +168,7 @@ class VAR:
     """
     This is the vector autoregression class. It supports estimation,
     doing IRFs and other stuff.
-    """ 
+    """
     def __init__(self,laglen=1,data='none',set_useconst='const'):
         self.VAR_attr = {}
         self.getdata(data)
@@ -186,7 +186,7 @@ class VAR:
     def setuseconst(self,useconst):
         self.VAR_attr['useconst'] = useconst
 
-    def setlaglen(self,laglen): 
+    def setlaglen(self,laglen):
         self.VAR_attr['laglen'] = laglen
         self.VAR_attr['avobs'] = self.VAR_attr['nuofobs'] - self.VAR_attr['laglen']
 
@@ -199,7 +199,7 @@ class VAR:
         laglen = VAR_attr['laglen']
         nuofobs = VAR_attr['nuofobs']
         avobs = VAR_attr['avobs']
-        useconst = VAR_attr['useconst']     
+        useconst = VAR_attr['useconst']
         y = data[laglen:,:]
         X = MAT.zeros((avobs,veclen*laglen))
         for x1 in range(0,laglen,1):
@@ -412,55 +412,27 @@ class VAR:
         BIC = S.linalg.det(omega[0:veclen,0:veclen])+(np.log(nuofobs)/nuofobs)*laglen*veclen**2
         self.ols_comp_results['BIC'] = BIC
 
-    #This is a function which sets lag by AIC, input is maximum lags over which to search
-    def lag_by_AIC(self,lags):
-        laglen = self.VAR_attr['laglen']
-        lagrange = np.arange(1,lags+1,1)
-        i1 = 0
-        for i in lagrange:
-            self.laglen = i
+    def lag_by(self,lags,IC='AIC'):
+        """Set lag by any information criterion available, input is maximum lags over which to search and criterion
+        """
+        ICs = []
+        for i in xrange(1, lags+1):
+            # YOH: this is begging for use of properties ;)
+            self.setlaglen(i)
             self.ols()
-            if i1 == 0:
-                AIC = self.AIC
-                i1 = i1 + 1
-            else:
-                AIC = append(AIC,self.AIC)
-                i1 = i1 + 1
-        index = argsort(AIC)
-        i1 = 1
-        for element in index:
-            if element == 0:
-                lag_AIC = i1
-                break
-            else:
-                i1 = i1 + 1
-        self.VAR_attr['lag_AIC'] = lag_AIC
-        self.VAR_attr['laglen'] = lag_AIC
+            ICs.append(self.ols_results[IC])
+        self.VAR_attr['lag_%s' % IC] = self.VAR_attr['laglen'] = np.argmin(ICs) + 1
 
-    #This is a function which sets lag by BIC, input is maximum lags over which to search
+    def lag_by_AIC(self,lags):
+        """Set lag by AIC, input is maximum lags over which to search
+        """
+        self.lag_by(lags, IC='AIC')
+
     def lag_by_BIC(self,lags):
-        laglen = self.VAR_attr['laglen']
-        lagrange = np.arange(1,lags+1,1)
-        i1 = 0
-        for i in lagrange:
-            self.laglen = i
-            self.ols()
-            if i1 == 0:
-                BIC = self.BIC
-                i1 = i1 + 1
-            else:
-                BIC = append(BIC,self.BIC)
-                i1 = i1 + 1
-        index = argsort(BIC)
-        i1 = 1
-        for element in index:
-            if element == 0:
-                lag_BIC = i1
-                break
-            else:
-                i1 = i1 + 1
-        self.VAR_attr['lag_BIC'] = lag_BIC
-        self.VAR_attr['laglen'] = lag_BIC
+        """Set lag by BIC, input is maximum lags over which to search
+        """
+        self.lag_by(lags, IC='BIC')
+
 
     #Auxiliary function, creates the y and X matrices for OLS_comp
     def make_y_X_stack(self):
@@ -527,9 +499,15 @@ if __name__ == "__main__":
     data = dataset.data
     XX = data[['realinv','realgdp','realcons']].view(float).reshape(-1,3)
     XX = np.diff(np.log(XX), axis=0)
-    vrx = VAR(data=XX,laglen=2)
+    vrx = VAR(data=XX, laglen=2)
     vrx2 = VAR2(data=XX, laglen=2)
-
-
-    
+    # very silly VAR(O)
+    O = 5
+    A = np.random.randn(3,3)
+    for x in range(O, len(XX)):
+        XX[x] = np.dot(XX[x-O], A) + 0.5*np.random.randn(3)
+    vrx.lag_by_AIC(10)
+    print vrx.VAR_attr['lag_AIC']
+    vrx.lag_by_BIC(10)
+    print vrx.VAR_attr['lag_BIC']
 
