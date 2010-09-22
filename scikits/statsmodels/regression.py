@@ -281,7 +281,7 @@ Should be of length %s, if sigma is a 1d array" % nobs
         if self._results is None and params is None:
             raise ValueError, "If the model has not been fit, then you must specify the params argument."
         if self._results is not None:
-            return np.dot(exog, self.results.params)
+            return np.dot(exog, self._results.params)
         else:
             return np.dot(exog, params)
 
@@ -649,7 +649,7 @@ class GLSAR(GLS):
                 _X[(i+1):,:] = _X[(i+1):,:] - self.rho[i] * X[0:-(i+1),:]
                 return _X[self.order:,:]
     
-def yule_walker(X, order=1, method="unbiased", df=None, inv=False, demean=True):    
+def yule_walker(X, order=1, method="unbiased", df=None, inv=False, demean=True):
     """
     Estimate AR(p) parameters from a sequence X using Yule-Walker equation.
 
