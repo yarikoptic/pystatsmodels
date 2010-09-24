@@ -1,5 +1,5 @@
 """
-This module implements some standard regression models: 
+This module implements some standard regression models:
 
 Generalized Least Squares (GLS),
 Ordinary Least Squares (OLS),
@@ -20,7 +20,7 @@ D. C. Montgomery and E.A. Peck. "Introduction to Linear Regression
 
 Econometrics references for regression models:
 
-R. Davidson and J.G. MacKinnon.  "Econometric Theory and Methods," Oxford, 
+R. Davidson and J.G. MacKinnon.  "Econometric Theory and Methods," Oxford,
     2004.
 
 W. Green.  "Econometric Analysis," 5th ed., Pearson, 2003.
@@ -41,24 +41,24 @@ from decorators import *
 class GLS(LikelihoodModel):
     """
     Generalized least squares model with a general covariance structure.
-    
+
     Parameters
     ----------
     endog : array-like
-           endog is a 1-d vector that contains the response/independent variable 
+           endog is a 1-d vector that contains the response/independent variable
     exog : array-like
-           exog is a n x p vector where n is the number of observations and p is 
+           exog is a n x p vector where n is the number of observations and p is
            the number of regressors/dependent variables including the intercept
            if one is included in the data.
     sigma : scalar or array
            `sigma` is the weighting matrix of the covariance.
-           The default is None for no scaling.  If `sigma` is a scalar, it is 
-           assumed that `sigma` is an n x n diagonal matrix with the given 
-           scalar, `sigma` as the value of each diagonal element.  If `sigma` 
-           is an n-length vector, then `sigma` is assumed to be a diagonal 
-           matrix with the given `sigma` on the diagonal.  This should be the 
+           The default is None for no scaling.  If `sigma` is a scalar, it is
+           assumed that `sigma` is an n x n diagonal matrix with the given
+           scalar, `sigma` as the value of each diagonal element.  If `sigma`
+           is an n-length vector, then `sigma` is assumed to be a diagonal
+           matrix with the given `sigma` on the diagonal.  This should be the
            same as WLS.
-          
+
     Attributes
     ----------
     pinv_wexog : array
@@ -91,7 +91,7 @@ class GLS(LikelihoodModel):
         Fisher information matrix.  Not yet implemented
     initialize
         (Re)-initialize a model.
-    loglike 
+    loglike
         Obtain the loglikelihood for a given set of parameters.
     newton
         Used to solve the maximum likelihood problem.
@@ -107,7 +107,7 @@ class GLS(LikelihoodModel):
     -----
     If sigma is a function of the data making one of the regressors
     a constant, then the current postestimation statistics will not be correct.
-    
+
 
     Examples
     --------
@@ -119,9 +119,9 @@ class GLS(LikelihoodModel):
     >>> res_fit = sm.OLS(ols_resid[1:], ols_resid[:-1]).fit()
     >>> rho = res_fit.params
 
-    `rho` is a consistent estimator of the correlation of the residuals from 
-    an OLS fit of the longley data.  It is assumed that this is the true rho 
-    of the AR process data. 
+    `rho` is a consistent estimator of the correlation of the residuals from
+    an OLS fit of the longley data.  It is assumed that this is the true rho
+    of the AR process data.
 
     >>> from scipy.linalg import toeplitz
     >>> order = toeplitz(np.arange(16))
@@ -132,7 +132,7 @@ class GLS(LikelihoodModel):
 
     >>> gls_model = sm.GLS(data.endog, data.exog, sigma=sigma)
     >>> gls_results = gls_model.results
-            
+
     """
 
     def __init__(self, endog, exog, sigma=None):
@@ -140,7 +140,7 @@ class GLS(LikelihoodModel):
 #TODO: default is sigma is none should be two-step GLS
         if sigma is not None:
             self.sigma = np.asarray(sigma)
-        else: 
+        else:
             self.sigma = sigma
         if self.sigma is not None and not self.sigma.shape == (): #greedy logic
             nobs = int(endog.shape[0])
@@ -191,25 +191,25 @@ Should be of length %s, if sigma is a 1d array" % nobs
         X = np.asarray(X)
         if np.any(self.sigma) and not self.sigma==():
             return np.dot(self.cholsigmainv, X)
-        else: 
+        else:
             return X
 
     def fit(self, method="pinv", **kwargs):
         """
         Full fit of the model.
-        
-        The results include an estimate of covariance matrix, (whitened) 
+
+        The results include an estimate of covariance matrix, (whitened)
         residuals and an estimate of scale.
 
         Parameters
         ----------
         method : str
-            Can be "pinv", "qr", or "mle".  "pinv" uses the 
+            Can be "pinv", "qr", or "mle".  "pinv" uses the
             Moore-Penrose pseudoinverse to solve the least squares problem.
             "svd" uses the Singular Value Decomposition.  "qr" uses the
             QR factorization.  "mle" fits the model via maximum likelihood.
             "mle" is not yet implemented.
-         
+
         Returns
         -------
         A RegressionResults class instance.
@@ -256,7 +256,7 @@ Should be of length %s, if sigma is a 1d array" % nobs
         if self._results is None:
             self._results = self.fit()
         return self._results
-        
+
     def predict(self, exog, params=None):
         """
         Return linear predicted values from a design matrix.
@@ -288,7 +288,7 @@ Should be of length %s, if sigma is a 1d array" % nobs
     def loglike(self, params):
         """
         Returns the value of the gaussian loglikelihood function at params.
-        
+
         Given the whitened design matrix, the loglikelihood is evaluated
         at the parameter vector `params` for the dependent variable `endog`.
 
@@ -308,34 +308,34 @@ Should be of length %s, if sigma is a 1d array" % nobs
         The loglikelihood function for the normal distribution is
 
         .. math:: -\frac{n}{2}\text{\ensuremath{\log}}\left(Y-\hat{Y}\right)-\frac{n}{2}\left(1+\log\left(\frac{2\pi}{n}\right)\right)-\frac{1}{2}\text{log}\left(\left|\Sigma\right|\right)\]
-        
+
         Y and Y-hat are whitened.
-        
+
         """
 #TODO: combine this with OLS/WLS loglike and add _det_sigma argument
         nobs2 = self.nobs / 2.0
         SSR = ss(self.wendog - np.dot(self.wexog,params))
         llf = -np.log(SSR) * nobs2      # concentrated likelihood
         llf -= (1+np.log(np.pi/nobs2))*nobs2  # with likelihood constant
-        if np.any(self.sigma) and self.sigma.ndim == 2: 
+        if np.any(self.sigma) and self.sigma.ndim == 2:
 #FIXME: robust-enough check?  unneeded if _det_sigma gets defined
-            llf -= .5*np.log(np.linalg.det(self.sigma)) 
+            llf -= .5*np.log(np.linalg.det(self.sigma))
             # with error covariance matrix
         return llf
 
 class WLS(GLS):
-    """    
-    A regression model with diagonal but non-identity covariance structure. 
+    """
+    A regression model with diagonal but non-identity covariance structure.
 
     The weights are presumed to be (proportional to) the inverse of the
     variance of the observations.  That is, if the variables are to be
     transformed by 1/sqrt(W) you must supply weights = 1/W.  Note that this
     is different than the behavior for GLS with a diagonal Sigma, where you
     would just supply W.
-    
+
     **Methods**
 
-    whiten 
+    whiten
         Returns the input scaled by sqrt(W)
 
 
@@ -350,7 +350,7 @@ class WLS(GLS):
         1d array of weights.  If you supply 1/W then the variables are pre-
         multiplied by 1/sqrt(W).  If no weights are supplied the default value
         is 1 and WLS reults are the same as OLS.
-        
+
     Attributes
     ----------
     weights : array
@@ -422,12 +422,12 @@ class WLS(GLS):
                 whitened = np.sqrt(self.weights)*X
             else:
                 whitened = np.sqrt(self.weights)[:,None]*X
-            return whitened 
+            return whitened
 
     def loglike(self, params):
         """
         Returns the value of the gaussian loglikelihood function at params.
-        
+
         Given the whitened design matrix, the loglikelihood is evaluated
         at the parameter vector `params` for the dependent variable `Y`.
 
@@ -454,11 +454,11 @@ class WLS(GLS):
         if np.all(self.weights != 1):    #FIXME: is this a robust-enough check?
             llf -= .5*np.log(np.multiply.reduce(1/self.weights)) # with weights
         return llf
-    
+
 class OLS(WLS):
     """
     A simple ordinary least squares model.
-    
+
     **Methods**
 
     inherited from regression.GLS
@@ -507,7 +507,7 @@ class OLS(WLS):
 #TODO: change example to use datasets.  This was the point of datasets!
     def __init__(self, endog, exog=None):
         super(OLS, self).__init__(endog, exog)
-    
+
     def loglike(self, params):
         '''
         The likelihood function for the clasical OLS model.
@@ -523,7 +523,7 @@ class OLS(WLS):
         '''
         nobs2 = self.nobs/2.
         return -nobs2*np.log(2*np.pi)-nobs2*np.log(1/(2*nobs2) *\
-                np.dot(np.transpose(self.endog - 
+                np.dot(np.transpose(self.endog -
                     np.dot(self.exog, params)),
                     (self.endog - np.dot(self.exog,params)))) -\
                     nobs2
@@ -551,7 +551,7 @@ class GLSAR(GLS):
     >>> for i in range(6):
     ...    results = model.fit()
     ...    print "AR coefficients:", model.rho
-    ...    rho, sigma = sm.regression.yule_walker(results.resid, 
+    ...    rho, sigma = sm.regression.yule_walker(results.resid,
     ...                 order=model.order)
     ...    model = sm.GLSAR(Y, X, rho)
     AR coefficients: [ 0.  0.]
@@ -569,7 +569,7 @@ class GLSAR(GLS):
     >>> import numpy as np
     >>> print(results.f_test(np.identity(2)))
     <F test: F=2762.4281271616205, p=2.4583312696e-08, df_denom=5, df_num=2>
-    
+
     Or, equivalently
 
     >>> model2 = sm.GLSAR(Y, X, rho=2)
@@ -594,7 +594,7 @@ class GLSAR(GLS):
             self.order = self.rho.shape[0]
         if exog is None:
             #JP this looks wrong, should be a regression on constant
-            #results for rho estimate now identical to yule-walker on y 
+            #results for rho estimate now identical to yule-walker on y
             #super(AR, self).__init__(endog, add_constant(endog))
             super(GLSAR, self).__init__(endog, np.ones((endog.shape[0],1)))
         else:
@@ -604,7 +604,7 @@ class GLSAR(GLS):
         """
         Perform an iterative two-stage procedure to estimate a GLS model.
 
-        The model is assumed to have AR(p) errors, AR(p) parameters and 
+        The model is assumed to have AR(p) errors, AR(p) parameters and
         regression coefficients are estimated simultaneously.
 
         Parameters
@@ -615,12 +615,12 @@ class GLSAR(GLS):
 #TODO: update this after going through example.
         for i in range(maxiter-1):
             self.initialize()
-            results = self.fit()    
-            self.rho, _ = yule_walker(results.resid,    
+            results = self.fit()
+            self.rho, _ = yule_walker(results.resid,
                                       order=self.order, df=None)
         self._results = self.fit() #final estimate
         return self._results # add missing return
-    
+
     def whiten(self, X):
         """
         Whiten a series of columns according to an AR(p)
@@ -648,8 +648,13 @@ class GLSAR(GLS):
             for i in range(self.order):
                 _X[(i+1):,:] = _X[(i+1):,:] - self.rho[i] * X[0:-(i+1),:]
                 return _X[self.order:,:]
+<<<<<<< TREE
+
+def yule_walker(X, order=1, method="unbiased", df=None, inv=False):
+=======
     
 def yule_walker(X, order=1, method="unbiased", df=None, inv=False, demean=True):
+>>>>>>> MERGE-SOURCE
     """
     Estimate AR(p) parameters from a sequence X using Yule-Walker equation.
 
@@ -666,12 +671,12 @@ def yule_walker(X, order=1, method="unbiased", df=None, inv=False, demean=True):
     order : integer, optional
         The order of the autoregressive process.  Default is 1.
     method : string, optional
-       Method can be "unbiased" or "mle" and this determines denominator in 
-       estimate of autocorrelation function (ACF) at lag k. If "mle", the 
+       Method can be "unbiased" or "mle" and this determines denominator in
+       estimate of autocorrelation function (ACF) at lag k. If "mle", the
        denominator is n=X.shape[0], if "unbiased" the denominator is n-k.
        The default is unbiased.
     df : integer, optional
-       Specifies the degrees of freedom. If `df` is supplied, then it is assumed 
+       Specifies the degrees of freedom. If `df` is supplied, then it is assumed
        the X has `df` degrees of freedom rather than `n`.  Default is None.
     inv : bool
         If inv is True the inverse of R is also returned.  Default is False.
@@ -692,7 +697,7 @@ def yule_walker(X, order=1, method="unbiased", df=None, inv=False, demean=True):
     >>> data = load()
     >>> rho, sigma = sm.regression.yule_walker(data.endog,       \
                                        order=4, method="mle")
-    
+
     >>> rho
     array([ 1.28310031, -0.45240924, -0.20770299,  0.04794365])
     >>> sigma
@@ -739,11 +744,11 @@ class RegressionResults(LikelihoodModelResults):
     Returns
     -------
     **Attributes**
-    
+
     aic
-        Aikake's information criteria :math:`-2llf + 2(df_model+1)`        
-    bic 
-        Bayes' information criteria :math:`-2llf + \log(n)(df_model+1)`        
+        Aikake's information criteria :math:`-2llf + 2(df_model+1)`
+    bic
+        Bayes' information criteria :math:`-2llf + \log(n)(df_model+1)`
     pinv_wexog
         See specific model class docstring
     centered_tss
@@ -757,9 +762,9 @@ class RegressionResults(LikelihoodModelResults):
     cov_HC3
         See HC3_se below.  Only available after calling HC3_se.
     df_model :
-        Model degress of freedom. The number of regressors p - 1 for the 
-        constant  Note that df_model does not include the constant even though 
-        the design does.  The design is always assumed to have a constant 
+        Model degress of freedom. The number of regressors p - 1 for the
+        constant  Note that df_model does not include the constant even though
+        the design does.  The design is always assumed to have a constant
         in calculating results for now.
     df_resid
         Residual degrees of freedom. n - p.  Note that the constant *is*
@@ -793,10 +798,10 @@ class RegressionResults(LikelihoodModelResults):
         HC1_se is a property.  It is not evaluated until it is called.
         When it is called the RegressionResults instance will then have
         another attribute cov_HC1, which is the full HCCM and also `het_scale`,
-        which is in this case n/(n-p)*resid**2.  HCCM matrices are only 
+        which is in this case n/(n-p)*resid**2.  HCCM matrices are only
         appropriate for OLS.
     HC2_se
-        MacKinnon and White's (1985) alternative heteroskedasticity robust 
+        MacKinnon and White's (1985) alternative heteroskedasticity robust
         standard errors.
         Defined as (X.T X)^(-1)X.T diag(e_i^(2)/(1-h_ii)) X(X.T X)^(-1)
         where h_ii = x_i(X.T X)^(-1)x_i.T
@@ -806,7 +811,7 @@ class RegressionResults(LikelihoodModelResults):
         which is in this case is resid^(2)/(1-h_ii).  HCCM matrices are only
         appropriate for OLS.
     HC3_se
-        MacKinnon and White's (1985) alternative heteroskedasticity robust 
+        MacKinnon and White's (1985) alternative heteroskedasticity robust
         standard errors.
         Defined as (X.T X)^(-1)X.T diag(e_i^(2)/(1-h_ii)^(2)) X(X.T X)^(-1)
         where h_ii = x_i(X.T X)^(-1)x_i.T
@@ -824,7 +829,7 @@ class RegressionResults(LikelihoodModelResults):
         Mean squared error of the residuals.  The sum of squared residuals
         divided by the residual degrees of freedom.
     mse_total
-        Total mean squared error.  Defined as the uncentered total sum of 
+        Total mean squared error.  Defined as the uncentered total sum of
         squares divided by n the number of observations.
     nobs
         Number of observations n.
@@ -838,10 +843,10 @@ class RegressionResults(LikelihoodModelResults):
     resid
         The residuals of the model.
     rsquared
-        R-squared of a model with an intercept.  This is defined here as 
+        R-squared of a model with an intercept.  This is defined here as
         1 - `ssr`/`centered_tss`
     rsquared_adj
-        Adjusted R-squared.  This is defined here as 
+        Adjusted R-squared.  This is defined here as
         1 - (n-1)/(n-p)*(1-`rsquared`)
     scale
         A scale factor for the covariance matrix.
@@ -903,7 +908,7 @@ class RegressionResults(LikelihoodModelResults):
 ##    def __repr__(self):
 ##        print self.summary()
 
-    @cache_readonly 
+    @cache_readonly
     def df_resid(self):
         return self.model.df_resid
 
@@ -921,7 +926,7 @@ class RegressionResults(LikelihoodModelResults):
 
     @cache_readonly
     def wresid(self):
-        return self.model.wendog - self.model.predict(self.model.wexog, 
+        return self.model.wendog - self.model.predict(self.model.wexog,
                 self.params)
 
     @cache_readonly
@@ -966,9 +971,9 @@ class RegressionResults(LikelihoodModelResults):
     def ess(self):
         return self.centered_tss - self.ssr
 
-# Centered R2 for models with intercepts 
+# Centered R2 for models with intercepts
 # have a look in test_regression.test_wls to see
-# how to compute these stats for a model without intercept, 
+# how to compute these stats for a model without intercept,
 # and when the weights are a (linear?) function of the data...
     @cache_readonly
     def rsquared(self):
@@ -997,7 +1002,7 @@ class RegressionResults(LikelihoodModelResults):
     @cache_readonly
     def f_pvalue(self):
         return stats.f.sf(self.fvalue, self.df_model, self.df_resid)
-            
+
     @cache_readonly
     def bse(self):
         return np.sqrt(np.diag(self.cov_params()))
@@ -1017,29 +1022,29 @@ class RegressionResults(LikelihoodModelResults):
     @cache_readonly
     def bic(self):
         return -2 * self.llf + np.log(self.nobs) * (self.df_model + 1)
-    
-# Centered R2 for models with intercepts 
+
+# Centered R2 for models with intercepts
 # have a look in test_regression.test_wls to see
-# how to compute these stats for a model without intercept, 
+# how to compute these stats for a model without intercept,
 # and when the weights are a (linear?) function of the data...
 
 #TODO: make these properties reset bse
     def _HCCM(self, scale):
-        H = np.dot(self.model.pinv_wexog, 
+        H = np.dot(self.model.pinv_wexog,
             scale[:,None]*self.model.pinv_wexog.T)
         return H
 
     @property
     def HC0_se(self):
         """
-        See statsmodels.RegressionResults 
+        See statsmodels.RegressionResults
         """
         if self._HC0_se is None:
             self.het_scale = self.resid**2 # or whitened residuals? only OLS?
             self.cov_HC0 = self._HCCM(self.het_scale)
             self._HC0_se = np.sqrt(np.diag(self.cov_HC0))
         return self._HC0_se
- 
+
     @property
     def HC1_se(self):
         """
@@ -1063,7 +1068,7 @@ class RegressionResults(LikelihoodModelResults):
             self.cov_HC2 = self._HCCM(self.het_scale)
             self._HC2_se = np.sqrt(np.diag(self.cov_HC2))
         return self._HC2_se
-    
+
     @property
     def HC3_se(self):
         """
@@ -1071,14 +1076,14 @@ class RegressionResults(LikelihoodModelResults):
         """
         if self._HC3_se is None:
             h=np.diag(np.dot(np.dot(self.model.exog,
-                self.normalized_cov_params),self.model.exog.T)) 
+                self.normalized_cov_params),self.model.exog.T))
             # above probably could be optimized to only calc the diag
             self.het_scale=(self.resid/(1-h))**2
             self.cov_HC3 = self._HCCM(self.het_scale)
             self._HC3_se = np.sqrt(np.diag(self.cov_HC3))
         return self._HC3_se
 
-#TODO: this needs a test 
+#TODO: this needs a test
     def norm_resid(self):
         """
         Residuals, normalized to have unit length and unit variance.
@@ -1096,9 +1101,9 @@ class RegressionResults(LikelihoodModelResults):
  deviation'
         return self.wresid * recipr(np.sqrt(self.scale))
 
-    def summary(self, yname=None, xname=None):
+    def summary(self, yname=None, xname=None, returns='text'):
         """returns a string that summarizes the regression results
-        
+
         Parameters
         -----------
         yname : string, optional
@@ -1132,7 +1137,7 @@ class RegressionResults(LikelihoodModelResults):
         if xname is None:
             xname = self.model.exog_names
         modeltype = self.model.__class__.__name__
-    
+
         llf, aic, bic = self.llf, self.aic, self.bic
         JB, JBpv, skew, kurtosis = jarque_bera(self.wresid)
         omni, omnipv = omni_normtest(self.wresid)
@@ -1159,13 +1164,13 @@ class RegressionResults(LikelihoodModelResults):
         )
         part2_fmt = dict(
             #data_fmts = ["%#12.6g","%#12.6g","%#10.4g","%#5.4g"],
-            #data_fmts = ["%#10.4g","%#10.4g","%#10.4g","%#6.4g"],
-            data_fmts = ["%#15.4F","%#15.4F","%#15.4F","%#14.4G"],
+            data_fmts = ["%#10.4g","%#10.4g","%#6.4f","%#6.4f"],
+            #data_fmts = ["%#15.4F","%#15.4F","%#15.4F","%#14.4G"],
             empty_cell = '',
-            #colwidths = 10,
-            colsep='  ',
+            colwidths = 14,
+            colsep=' ',
             row_pre = '| ',
-            row_post = '|',
+            row_post = ' |',
             table_dec_above='=',
             table_dec_below='=',
             header_dec_below='-',
@@ -1178,12 +1183,13 @@ class RegressionResults(LikelihoodModelResults):
             fmt = 'txt'
         )
         part3_fmt = dict(
-            data_fmts = ["%#12.6g","%#12.6g","%#10.4g","%#5.4g"],
+            #data_fmts = ["%#12.6g","%#12.6g","%#10.4g","%#5.4g"],
+            data_fmts = ["%#10.4g","%#10.4g","%#10.4g","%#6.4g"],
             empty_cell = '',
-            colwidths = None,
-            colsep='    ',
+            colwidths = 15,
+            colsep='   ',
             row_pre = '| ',
-            row_post = ' |',
+            row_post = '  |',
             table_dec_above=None,
             table_dec_below='-',
             header_dec_below='-',
@@ -1230,8 +1236,8 @@ class RegressionResults(LikelihoodModelResults):
         part2header = ('coefficient', 'std. error', 't-statistic', 'prob.')
         part2stubs = xname
         #dfmt={'data_fmt':["%#12.6g","%#12.6g","%#10.4g","%#5.4g"]}
-        part2 = SimpleTable(part2data, 
-                            part2header, 
+        part2 = SimpleTable(part2data,
+                            part2header,
                             part2stubs,
                             title=None,
                             txt_fmt = part2_fmt)
@@ -1239,7 +1245,7 @@ class RegressionResults(LikelihoodModelResults):
         self.summary2 = part2
         ########  summary Part 3   #######
 
-        part3Lheader = ['Models stats'] 
+        part3Lheader = ['Models stats']
         part3Rheader = ['Residual stats']
         part3Lstubs = ('R-squared:',
                        'Adjusted R-squared:',
@@ -1268,49 +1274,64 @@ class RegressionResults(LikelihoodModelResults):
                       [JBpv],
                       [skew],
                       [kurtosis]]
-        part3L = SimpleTable(part3Ldata, part3Lheader, part3Lstubs, 
+        part3L = SimpleTable(part3Ldata, part3Lheader, part3Lstubs,
                              txt_fmt = part3_fmt)
-        part3R = SimpleTable(part3Rdata, part3Rheader, part3Rstubs, 
+        part3R = SimpleTable(part3Rdata, part3Rheader, part3Rstubs,
                              txt_fmt = part3_fmt)
         part3L.extend_right(part3R)
         ########  Return Summary Tables ########
         # join table parts then print
-        table = str(part1) + '\n' + str(part2) + '\n' + str(part3L)
-#TODO: return should require a argument in regression.summary(text)
-#      __str__ can be define to retun regression.summary(text) for printing to 
-#      screen. This would take better advantage of table.SimpleTable
-        return table
-        
-if __name__ == "__main__": 
-    data = np.recfromcsv('datasets/anes96/anes96.csv', delimiter='\t')
-    ols2 = OLS(data['income'], np.column_stack((data['age'],data['educ']))).fit()
-    print(ols2.summary())
+        if returns == 'text':
+            return str(part1) + '\n' +  str(part2) + '\n' + str(part3L)
+        elif returns == 'tables':
+            return [part1, part2 ,part3L]
+        elif returns == 'csv':
+            return part1.as_csv() + '\n' + part2.as_csv() + '\n' + \
+                   part3L.as_csv()
+        elif returns == 'latex':
+            print('not avalible yet')
+        elif returns == html:
+            print('not avalible yet')
 
+if __name__ == "__main__":
+    import scikits.statsmodels as sm
+    data = sm.datasets.longley.load()
+    data.exog = add_constant(data.exog)
+    ols_results = OLS(data.endog, data.exog).results
+    gls_results = GLS(data.endog, data.exog).results
+    print(ols_results.summary())
+    tables = ols_results.summary(returns='tables')
+    csv = ols_results.summary(returns='csv')
 """
-      Summary of Regression Results     
+    Summary of Regression Results
 =======================================
-| Dependent Variable:                Y|
+| Dependent Variable:            ['y']|
 | Model:                           OLS|
 | Method:                Least Squares|
-| Date:               Mon, 03 May 2010|
-| Time:                       19:05:23|
-| # obs:                         944.0|
-| Df residuals:                  942.0|
-| Df model:                        1.0|
-======================================================================================
-|                      coefficient       std. error      t-statistic            prob.|
---------------------------------------------------------------------------------------
-| X.0                    0.0978921       0.00806334            12.14        1.291e-31|
-| X.1                      2.45744        0.0830518            29.59       1.368e-136|
-======================================================================================
+| Date:               Tue, 29 Jun 2010|
+| Time:                       22:32:21|
+| # obs:                          16.0|
+| Df residuals:                    9.0|
+| Df model:                        6.0|
+===========================================================================
+|            coefficient       std. error      t-statistic           prob.|
+---------------------------------------------------------------------------
+| x1             15.0619          84.9149           0.1774          0.8631|
+| x2             -0.0358           0.0335          -1.0695          0.3127|
+| x3             -2.0202           0.4884          -4.1364        0.002535|
+| x4             -1.0332           0.2143          -4.8220       0.0009444|
+| x5             -0.0511           0.2261          -0.2261          0.8262|
+| x6           1829.1515         455.4785           4.0159        0.003037|
+| const    -3482258.6346      890420.3836          -3.9108        0.003560|
+===========================================================================
 |                        Models stats                      Residual stats |
 ---------------------------------------------------------------------------
-| R-squared:              -0.00789126    Durbin-Watson:          0.766147 |
-| Adjusted R-squared:     -0.00896121    Omnibus:                 45.9830 |
-| F-statistic:               -7.37537    Prob(Omnibus):       1.03495e-10 |
-| Prob (F-statistic):         1.00000    JB:                      51.6050 |
-| Log likelihood:            -3030.13    Prob(JB):            6.22476e-12 |
-| AIC criterion:              6064.27    Skew:                  -0.573318 |
-| BIC criterion:              6073.97    Kurtosis:                3.05805 |
+| R-squared:                 0.995479    Durbin-Watson:           2.55949 |
+| Adjusted R-squared:        0.992465    Omnibus:                0.748615 |
+| F-statistic:                330.285    Prob(Omnibus):          0.687765 |
+| Prob (F-statistic):     4.98403e-10    JB:                     0.352773 |
+| Log likelihood:            -109.617    Prob(JB):               0.838294 |
+| AIC criterion:              233.235    Skew:                   0.419984 |
+| BIC criterion:              238.643    Kurtosis:                2.43373 |
 ---------------------------------------------------------------------------
 """
