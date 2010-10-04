@@ -404,8 +404,6 @@ returned a nan.  This could be a boundary problem and should be reported."
         self.mu = mu
         glm_results = GLMResults(self, wls_results.params,
                 wls_results.normalized_cov_params, self.scale)
-        glm_results.bse = np.sqrt(np.diag(wls_results.cov_params(\
-                scale=self.scale)))
         return glm_results
 
 # doesn't make sense really if there are arguments to fit
@@ -577,6 +575,7 @@ class GLMResults(LikelihoodModelResults):
     def resid_deviance(self):
         return self.family.resid_dev(self._endog, self.mu)
 
+    
     @cache_readonly
     def pvalues(self):
         return t.sf(np.abs(self.t()), self.df_resid)*2
