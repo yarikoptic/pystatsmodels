@@ -399,9 +399,9 @@ class ARMA(LikelihoodModel):
                 arcoefs_tmp = armod.params
                 p_tmp = armod.laglen
                 resid = endog[p_tmp:] - np.dot(lagmat(endog, p_tmp, 
-                                trim='both')[:,1:], arcoefs_tmp)
+                                trim='both'), arcoefs_tmp)
                 X = np.column_stack((lagmat(endog,p,'both')[p_tmp+(q-p):,1:],
-                    lagmat(resid,q,'both')[:,1:])) # stack ar lags and resids
+                    lagmat(resid,q,'both'))) # stack ar lags and resids
                 coefs = GLS(endog[p_tmp+q:], X).fit().params
                 start_params[k:k+p+q] = coefs
 
@@ -633,7 +633,7 @@ class ARMA(LikelihoodModel):
         arparams = newparams[k:k+p]
         maparams = newparams[k+p:k+p+q]
         errors = [0] * q
-
+        
 
     def fit(self, order, start_params=None, trend='c', transparams=True, 
             solver=None, maxiter=35, full_output=1, disp=1, callback=None, 
