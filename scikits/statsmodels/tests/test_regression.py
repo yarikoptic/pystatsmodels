@@ -30,18 +30,18 @@ class CheckRegressionResults(object):
 
     decimal_params = DECIMAL_4
     def test_params(self):
-        assert_almost_equal(self.res1.params, self.res2.params, 
+        assert_almost_equal(self.res1.params, self.res2.params,
                 self.decimal_params)
 
     decimal_standarderrors = DECIMAL_4
     def test_standarderrors(self):
-        assert_almost_equal(self.res1.bse,self.res2.bse, 
+        assert_almost_equal(self.res1.bse,self.res2.bse,
                 self.decimal_standarderrors)
 
     decimal_confidenceintervals = DECIMAL_4
     def test_confidenceintervals(self):
 #        if hasattr(self.res2, 'conf_int'):
-#            self.check_confidenceintervals(self.res1.conf_int(), 
+#            self.check_confidenceintervals(self.res1.conf_int(),
 #                self.res2.conf_int)
 #        else:
 #            raise SkipTest, "Results from Rpy"
@@ -49,9 +49,9 @@ class CheckRegressionResults(object):
         conf1 = self.res1.conf_int()
         conf2 = self.res2.conf_int()
         for i in range(len(conf1)):
-            assert_approx_equal(conf1[i][0], conf2[i][0], 
+            assert_approx_equal(conf1[i][0], conf2[i][0],
                     self.decimal_confidenceintervals)
-            assert_approx_equal(conf1[i][1], conf2[i][1], 
+            assert_approx_equal(conf1[i][1], conf2[i][1],
                     self.decimal_confidenceintervals)
 
     decimal_conf_int_subset = DECIMAL_4
@@ -62,10 +62,10 @@ class CheckRegressionResults(object):
             assert_almost_equal(ci1, ci2, self.decimal_conf_int_subset)
         else:
             pass
-        
+
     decimal_scale = DECIMAL_4
     def test_scale(self):
-        assert_almost_equal(self.res1.scale, self.res2.scale, 
+        assert_almost_equal(self.res1.scale, self.res2.scale,
                 self.decimal_scale)
 
     decimal_rsquared = DECIMAL_4
@@ -81,13 +81,13 @@ class CheckRegressionResults(object):
     def test_degrees(self):
         assert_equal(self.res1.model.df_model, self.res2.df_model)
         assert_equal(self.res1.model.df_resid, self.res2.df_resid)
-    
+
     decimal_ess = DECIMAL_4
     def test_ess(self):
         """
         Explained Sum of Squares
         """
-        assert_almost_equal(self.res1.ess, self.res2.ess, 
+        assert_almost_equal(self.res1.ess, self.res2.ess,
                     self.decimal_ess)
 
     decimal_ssr = DECIMAL_4
@@ -99,19 +99,19 @@ class CheckRegressionResults(object):
         """
         Mean squared error of residuals
         """
-        assert_almost_equal(self.res1.mse_model, self.res2.mse_model, 
+        assert_almost_equal(self.res1.mse_model, self.res2.mse_model,
                     self.decimal_mse_resid)
 
     decimal_mse_model = DECIMAL_4
     def test_mse_model(self):
-        assert_almost_equal(self.res1.mse_resid, self.res2.mse_resid, 
+        assert_almost_equal(self.res1.mse_resid, self.res2.mse_resid,
                     self.decimal_mse_model)
 
     decimal_fvalue = DECIMAL_4
     def test_fvalue(self):
         #didn't change this, not sure it should complain -inf not equal -inf
         #if not (np.isinf(self.res1.fvalue) and np.isinf(self.res2.fvalue)):
-        assert_almost_equal(self.res1.fvalue, self.res2.fvalue, 
+        assert_almost_equal(self.res1.fvalue, self.res2.fvalue,
                 self.decimal_fvalue)
 
     decimal_loglike = DECIMAL_4
@@ -133,12 +133,12 @@ class CheckRegressionResults(object):
 
     decimal_wresid = DECIMAL_4
     def test_wresid(self):
-        assert_almost_equal(self.res1.wresid, self.res2.wresid, 
+        assert_almost_equal(self.res1.wresid, self.res2.wresid,
             self.decimal_wresid)
 
     decimal_resids = DECIMAL_4
     def test_resids(self):
-        assert_almost_equal(self.res1.resid, self.res2.resid, 
+        assert_almost_equal(self.res1.resid, self.res2.resid,
             self.decimal_resids)
 
 #TODO: test fittedvalues and what else?
@@ -155,29 +155,29 @@ class TestOLS(CheckRegressionResults):
         self.res1 = res1
         self.res2 = res2
 
-       
+
 #  Robust error tests.  Compare values computed with SAS
     def test_HC0_errors(self):
         '''
         They are split up because the copied results do not have any DECIMAL_4
         places for the last place.
         '''
-        assert_almost_equal(self.res1.HC0_se[:-1], 
+        assert_almost_equal(self.res1.HC0_se[:-1],
                 self.res2.HC0_se[:-1], DECIMAL_4)
         assert_approx_equal(np.round(self.res1.HC0_se[-1]), self.res2.HC0_se[-1])
 
     def test_HC1_errors(self):
-        assert_almost_equal(self.res1.HC1_se[:-1], 
+        assert_almost_equal(self.res1.HC1_se[:-1],
                 self.res2.HC1_se[:-1], DECIMAL_4)
-        assert_approx_equal(self.res1.HC1_se[-1], self.res2.HC1_se[-1])     
-     
+        assert_approx_equal(self.res1.HC1_se[-1], self.res2.HC1_se[-1])
+
     def test_HC2_errors(self):
-        assert_almost_equal(self.res1.HC2_se[:-1], 
+        assert_almost_equal(self.res1.HC2_se[:-1],
                 self.res2.HC2_se[:-1], DECIMAL_4)
         assert_approx_equal(self.res1.HC2_se[-1], self.res2.HC2_se[-1])
 
     def test_HC3_errors(self):
-        assert_almost_equal(self.res1.HC3_se[:-1], 
+        assert_almost_equal(self.res1.HC3_se[:-1],
                 self.res2.HC3_se[:-1], DECIMAL_4)
         assert_approx_equal(self.res1.HC3_se[-1], self.res2.HC3_se[-1])
 
@@ -192,13 +192,13 @@ class TestFtest(object):
         self.res1 = OLS(data.endog, data.exog).fit()
         R = np.identity(7)[:-1,:]
         self.Ftest = self.res1.f_test(R)
-        
+
     def test_F(self):
         assert_almost_equal(self.Ftest.fvalue, self.res1.fvalue, DECIMAL_4)
 
     def test_p(self):
         assert_almost_equal(self.Ftest.pvalue, self.res1.f_pvalue, DECIMAL_4)
-        
+
     def test_Df_denom(self):
         assert_equal(self.Ftest.df_denom, self.res1.model.df_resid)
 
@@ -207,8 +207,8 @@ class TestFtest(object):
 
 class TestFTest2(TestFtest):
     '''
-    A joint test that the coefficient on 
-    GNP = the coefficient on UNEMP  and that the coefficient on 
+    A joint test that the coefficient on
+    GNP = the coefficient on UNEMP  and that the coefficient on
     POP = the coefficient on YEAR for the Longley dataset.
 
     Ftest1 is from statsmodels.  Results are from Rpy using R's car library.
@@ -221,21 +221,21 @@ class TestFTest2(TestFtest):
 #        try:
 #            r.library('car')
 #        except RPyRException:
-#            raise SkipTest, "car library not installed for R"            
+#            raise SkipTest, "car library not installed for R"
 #        self.R2 = [[0,1,-1,0,0,0,0],[0, 0, 0, 0, 1, -1, 0]]
 #        self.Ftest2 = self.res1.f_test(self.R2)
 #        self.R_Results = RModel(self.data.endog, self.data.exog, r.lm).robj
 #        self.F = r.linear_hypothesis(self.R_Results,
 #                r.c('x.2 = x.3', 'x.5 = x.6'))
 
-    
+
     def test_fvalue(self):
         assert_almost_equal(self.Ftest1.fvalue, 9.7404618732968196, DECIMAL_4)
 
     def test_pvalue(self):
-        assert_almost_equal(self.Ftest1.pvalue, 0.0056052885317493459, 
+        assert_almost_equal(self.Ftest1.pvalue, 0.0056052885317493459,
                 DECIMAL_4)
-        
+
     def test_df_denom(self):
         assert_equal(self.Ftest1.df_denom, 9)
 
@@ -251,7 +251,7 @@ class TestFtestQ(TestFtest):
         R = np.array([[0,1,1,0,0,0,0],
               [0,1,0,1,0,0,0],
               [0,1,0,0,0,0,0],
-              [0,0,0,0,1,0,0], 
+              [0,0,0,0,1,0,0],
               [0,0,0,0,0,1,0]])
         q = np.array([0,0,0,1,0])
         self.Ftest1 = self.res1.f_test(R,q)
@@ -289,7 +289,7 @@ class TestTtest(object):
         R = np.identity(7)
         self.Ttest = self.res1.t_test(R)
 #        self.R_Results = RModel(data.endog, data.exog, r.lm).robj
-            
+
     def test_tvalue(self):
         assert_almost_equal(self.Ttest.tvalue, self.res1.t(), DECIMAL_4)
 
@@ -297,10 +297,10 @@ class TestTtest(object):
         assert_almost_equal(self.Ttest.sd, self.res1.bse, DECIMAL_4)
 
     def test_pvalue(self):
-        assert_almost_equal(self.Ttest.pvalue, 
-                student_t.sf(np.abs(self.res1.t()),self.res1.model.df_resid), 
+        assert_almost_equal(self.Ttest.pvalue,
+                student_t.sf(np.abs(self.res1.t()),self.res1.model.df_resid),
                     DECIMAL_4)
-        
+
     def test_df_denom(self):
         assert_equal(self.Ttest.df_denom, self.res1.model.df_resid)
 
@@ -320,7 +320,7 @@ class TestTtest2(TestTtest):
 #        try:
 #            r.library('car')
 #        except RPyRException:
-#            raise SkipTest, "car library not installed for R" 
+#            raise SkipTest, "car library not installed for R"
         R = np.zeros(7)
         R[4:6] = [1,-1]
 #        self.R = R
@@ -333,7 +333,7 @@ class TestTtest2(TestTtest):
 #        self.effect = np.sum(R * self.res1.params)
 
     def test_tvalue(self):
-        assert_almost_equal(self.Ttest1.tvalue, -4.0167754636397284, 
+        assert_almost_equal(self.Ttest1.tvalue, -4.0167754636397284,
                 DECIMAL_4)
 
     def test_sd(self):
@@ -342,7 +342,7 @@ class TestTtest2(TestTtest):
     def test_pvalue(self):
         assert_almost_equal(self.Ttest1.pvalue, 0.0015163772380932246,
             DECIMAL_4)
-        
+
     def test_df_denom(self):
         assert_equal(self.Ttest1.df_denom, 9)
 
@@ -394,7 +394,7 @@ class TestGLS(object):
         assert_almost_equal(self.res1.bse, self.res2.bse, DECIMAL_4)
 
     def test_fittedvalues(self):
-        assert_almost_equal(self.res1.fittedvalues, self.res2.fittedvalues, 
+        assert_almost_equal(self.res1.fittedvalues, self.res2.fittedvalues,
                 DECIMAL_4)
 
     def test_pvalues(self):
@@ -424,7 +424,7 @@ class TestGLS_nosigma(CheckRegressionResults):
 #    def __init__(self):
 #        from scikits.statsmodels.datasets.ccard import load
 #        self.data = load()
-#        self.res1 = WLS(self.data.endog, self.data.exog, 
+#        self.res1 = WLS(self.data.endog, self.data.exog,
 #                weights=1/self.data.exog[:,2]).fit()
 #FIXME: triaged results for noconstant
 #        self.res1.ess = self.res1.uncentered_tss - self.res1.ssr
@@ -437,7 +437,7 @@ class TestGLS_nosigma(CheckRegressionResults):
 #    def setup(self):
 #        if skipR:
 #            raise SkipTest, "Rpy not installed"
-#        self.res2 = RModel(self.data.endog, self.data.exog, r.lm, 
+#        self.res2 = RModel(self.data.endog, self.data.exog, r.lm,
 #                        weights=1/self.data.exog[:,2])
 #        self.res2.wresid = self.res2.rsum['residuals']
 #        self.res2.scale = self.res2.scale**2 # R has sigma not sigma**2
@@ -487,7 +487,7 @@ class TestGLS_OLS(CheckRegressionResults):
 #    R_res = RModel(data.endog, aic="FALSE", order_max=4)
 
 #    def test_params(self):
-#        assert_almost_equal(self.model.rho, 
+#        assert_almost_equal(self.model.rho,
 #        pass
 
 #    def test_order(self):
@@ -499,11 +499,11 @@ class TestYuleWalker(object):
     def __init__(self):
         from scikits.statsmodels.datasets.sunspots import load
         self.data = load()
-        self.rho, self.sigma = yule_walker(self.data.endog, order=4, 
-                method="mle") 
+        self.rho, self.sigma = yule_walker(self.data.endog, order=4,
+                method="mle")
         self.R_params = [1.2831003105694765, -0.45240924374091945,
                 -0.20770298557575195, 0.047943648089542337]
-            
+
 #    def setup(self):
 #        if skipR:
 #            raise SkipTest, "Rpy not installed."
@@ -531,26 +531,26 @@ class TestDataDimensions(CheckRegressionResults):
         self.mod2 = OLS(self.endog_n_one, self.exog_n_one)
         self.mod2.df_model += 1
         self.res2 = self.mod2.fit()
-   
+
     def check_confidenceintervals(self, conf1, conf2):
         assert_almost_equal(conf1, conf2(), DECIMAL_4)
 
 class TestNxNx(TestDataDimensions):
-    def __init__(self):   
+    def __init__(self):
         super(TestNxNx, self).__init__()
         self.mod2 = OLS(self.endog_n_,self.exog_n_)
         self.mod2.df_model += 1
         self.res2 = self.mod2.fit()
 
 class TestNxOneNx(TestDataDimensions):
-    def __init__(self):    
+    def __init__(self):
         super(TestNxOneNx, self).__init__()
         self.mod2 = OLS(self.endog_n_one, self.exog_n_)
         self.mod2.df_model += 1
         self.res2 = self.mod2.fit()
 
 class TestNxNxOne(TestDataDimensions):
-    def __init__(self):   
+    def __init__(self):
         super(TestNxNxOne, self).__init__()
         self.mod2 = OLS(self.endog_n_, self.exog_n_one)
         self.mod2.df_model += 1
@@ -562,8 +562,9 @@ def test_bad_size():
     assert_raises(ValueError, OLS, data, data[1:])
 
 if __name__=="__main__":
-    #run_module_suite()
+
     import nose
+    run_module_suite()
     #nose.runmodule(argv=[__file__,'-vvs','-x'], exit=False) #, '--pdb'
 
 
