@@ -16,6 +16,8 @@ def remove_nanrows(y, x):
     
     TODO: this should be made more flexible, 
      arbitrary number of arrays and 1d or 2d arrays
+     
+    duplicate: Skipper added sm.tools.drop_missing
     
     '''
     mask = ~np.isnan(y)
