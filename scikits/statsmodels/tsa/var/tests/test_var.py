@@ -3,7 +3,7 @@ Test VAR Model
 """
 
 import scikits.statsmodels.api as sm
-from scikits.statsmodels.tsa.var import VAR2
+from scikits.statsmodels.tsa.var.alt import VAR2
 from numpy.testing import assert_almost_equal, assert_equal
 from numpy import diff,log
 
@@ -29,20 +29,20 @@ class CheckVAR(object):
     def test_rmse(self):
         results = self.res1.results
         for i in range(len(results)):
-            assert_almost_equal(results[i].mse_resid**.5, 
+            assert_almost_equal(results[i].mse_resid**.5,
                     eval('self.res2.rmse_'+str(i+1)), DECIMAL_6)
 
     def test_rsquared(self):
         results = self.res1.results
         for i in range(len(results)):
-            assert_almost_equal(results[i].rsquared, 
+            assert_almost_equal(results[i].rsquared,
                     eval('self.res2.rsquared_'+str(i+1)), DECIMAL_3)
 
     def test_llf(self):
         results = self.res1.results
         assert_almost_equal(self.res1.llf, self.res2.llf, DECIMAL_2)
         for i in range(len(results)):
-            assert_almost_equal(results[i].llf, 
+            assert_almost_equal(results[i].llf,
                     eval('self.res2.llf_'+str(i+1)), DECIMAL_2)
 
     def test_aic(self):
