@@ -4,7 +4,7 @@ from scikits.statsmodels.tools.tools import add_constant
 
 def add_trend(X, trend="c", prepend=False):
     """
-    Adds a trend and/or constant to an array. 
+    Adds a trend and/or constant to an array.
 
     Parameters
     ----------
@@ -61,32 +61,32 @@ def add_trend(X, trend="c", prepend=False):
             X = nprf.append_fields(trendarr, X.dtype.names, [X[i] for i
                 in data.dtype.names], usemask=False, asrecarray=return_rec)
         else:
-            X = nprf.append_fields(X, trendarr.dtype.names, [trendarr[i] for i 
+            X = nprf.append_fields(X, trendarr.dtype.names, [trendarr[i] for i
                 in trendarr.dtype.names], usemask=false, asrecarray=return_rec)
     return X
 
 def detrend(x, order=1, axis=0):
     '''detrend an array with a trend of given order along axis 0 or 1
-    
+
     Parameters
     ----------
     x : array_like, 1d or 2d
         data, if 2d, then each row or column is independently detrended with the
         same trendorder, but independent trend estimates
     order : int
-        specifies the polynomial order of the trend, zero is constant, one is 
+        specifies the polynomial order of the trend, zero is constant, one is
         linear trend, two is quadratic trend
-    axis : int 
+    axis : int
         for detrending with order > 0, axis can be either 0 observations by rows,
         or 1, observations by columns
-    
+
     Returns
     -------
     detrended data series : ndarray
         The detrended series is the residual of the linear regression of the
         data on the trend of given order.
-        
-    
+
+
     '''
     x = np.asarray(x)
     nobs = x.shape[0]
@@ -104,7 +104,7 @@ def detrend(x, order=1, axis=0):
         if x.ndim == 2 and range(2)[axis]==1:
             resid = resid.T
         return resid
-    
+
 
 def lagmat(x, maxlag, trim='forward', original='ex'):
     '''create 2d array of lags
@@ -123,7 +123,7 @@ def lagmat(x, maxlag, trim='forward', original='ex'):
     original : str {'ex','sep','in'}
         * 'ex' : drops the original array returning only the lagged values.
         * 'in' : returns the original array and the lagged values as a single
-        array.  
+        array.
         * 'sep' : returns a tuple (original array, lagged values). The original
                   array is truncated to have the same number of rows as
                   the returned lagmat.
@@ -134,7 +134,7 @@ def lagmat(x, maxlag, trim='forward', original='ex'):
         array with lagged observations
     y : 2d array, optional
         Only returned if original == 'sep'
-   
+
     Examples
     --------
     >>> from scikits.statsmodels.tsa.tsatools import lagmat
@@ -149,7 +149,7 @@ def lagmat(x, maxlag, trim='forward', original='ex'):
     array([[ 5.,  6.,  3.,  4.,  1.,  2.],
        [ 0.,  0.,  5.,  6.,  3.,  4.],
        [ 0.,  0.,  0.,  0.,  5.,  6.]])
-    
+
     >>> lagmat(X, maxlag=2, trim="both", original='in')
     array([[ 5.,  6.,  3.,  4.,  1.,  2.]])
 
@@ -215,7 +215,7 @@ def lagmat2ds(x, maxlag0, maxlagex=None, dropex=0, trim='forward'):
         max lag for all other variables all lags from zero to maxlag are included
     dropex : int (default is 0)
         exclude first dropex lags from other variables
-        for all variables, except the first, lags from dropex to maxlagex are 
+        for all variables, except the first, lags from dropex to maxlagex are
             included
     trim : string
         * 'forward' : trim invalid observations in front
@@ -226,7 +226,7 @@ def lagmat2ds(x, maxlag0, maxlagex=None, dropex=0, trim='forward'):
     Returns
     -------
     lagmat : 2d array
-        array with lagged observations, columns ordered by variable 
+        array with lagged observations, columns ordered by variable
 
     Notes
     -----
@@ -240,9 +240,99 @@ def lagmat2ds(x, maxlag0, maxlagex=None, dropex=0, trim='forward'):
     for k in range(1,nvar):
         lagsli.append(lagmat(x[:,k], maxlag, trim=trim, original='in')[:,dropex:maxlagex+1])
     return np.column_stack(lagsli)
-    
 
-__all__ = ['lagmat', 'lagmat2ds','add_trend']
+def vec(mat):
+    return mat.ravel('F')
+
+def vech(mat):
+    # Gets Fortran-order
+    return mat.T.take(_triu_indices(len(mat)))
+
+# tril/triu/diag, suitable for ndarray.take
+
+def _tril_indices(n):
+    rows, cols = np.tril_indices(n)
+    return rows * n + cols
+
+def _triu_indices(n):
+    rows, cols = np.triu_indices(n)
+    return rows * n + cols
+
+def _diag_indices(n):
+    rows, cols = np.diag_indices(n)
+    return rows * n + cols
+
+def unvec(v):
+    k = int(np.sqrt(len(v)))
+    assert(k * k == len(v))
+    return v.reshape((k, k), order='F')
+
+def unvech(v):
+    # quadratic formula, correct fp error
+    rows = .5 * (-1 + np.sqrt(1 + 8 * len(v)))
+    rows = int(np.round(rows))
+
+    result = np.zeros((rows, rows))
+    result[np.triu_indices(rows)] = v
+    result = result + result.T
+
+    # divide diagonal elements by 2
+    result[np.diag_indices(rows)] /= 2
+
+    return result
+
+def duplication_matrix(n):
+    """
+    Create duplication matrix D_n which satisfies vec(S) = D_n vech(S) for
+    symmetric matrix S
+
+    Returns
+    -------
+
+    """
+    onesmat = np.ones((n, n))
+    vech_mask = vec(np.tril(onesmat)) == 1
+    subdiag_mask = vec(np.tril(onesmat, k=-1)) != 0
+
+    D = np.eye(n * n)
+    D[subdiag_mask] = D[subdiag_mask] + D[-vech_mask]
+    return D[vech_mask].T
+
+def elimination_matrix(n):
+    """
+    Create the elimination matrix L_n which satisfies vech(M) = L_n vec(M) for
+    any matrix M
+
+    Parameters
+    ----------
+
+    Returns
+    -------
+
+    """
+    vech_indices = vec(np.tril(np.ones((n, n))))
+    return np.eye(n * n)[vech_indices != 0]
+
+def commutation_matrix(p, q):
+    """
+    Create the commutation matrix K_{p,q} satisfying vec(A') = K_{p,q} vec(A)
+
+    Parameters
+    ----------
+    p : int
+    q : int
+
+    Returns
+    -------
+    K : ndarray (pq x pq)
+    """
+    K = np.eye(p * q)
+    indices = np.arange(p * q).reshape((p, q), order='F')
+    return K.take(indices.ravel(), axis=0)
+
+__all__ = ['lagmat', 'lagmat2ds','add_trend', 'duplication_matrix',
+           'elimination_matrix', 'commutation_matrix',
+           'vec', 'vech', 'unvec', 'unvech']
 
 if __name__ == '__main__':
     # sanity check, mainly for imports
