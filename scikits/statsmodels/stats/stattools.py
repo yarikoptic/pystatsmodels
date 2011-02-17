@@ -63,7 +63,7 @@ def jarque_bera(resids):
     JBpv is the Chi^2 two-tail probability value
 
     skew is the measure of skewness
-        
+
     kurtosis is the measure of kurtosis
 
     """
@@ -77,3 +77,4 @@ def jarque_bera(resids):
     JBpv = stats.chi2.sf(JB,2);
 
     return JB, JBpv, skew, kurtosis
+
