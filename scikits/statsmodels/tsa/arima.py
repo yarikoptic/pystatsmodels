@@ -1,15 +1,16 @@
 import numpy as np
-from scikits.statsmodels.tools.decorators import (cache_readonly, 
+from scikits.statsmodels.tools.decorators import (cache_readonly,
         cache_writable, resettable_cache)
 from scipy import optimize
 from numpy import dot, identity, kron, log, zeros, pi, exp, eye, abs, empty
 from numpy.linalg import inv, pinv
+
 from scikits.statsmodels.tools.tools import add_constant
-from scikits.statsmodels.base.model import (LikelihoodModel, 
+from scikits.statsmodels.base.model import (LikelihoodModel,
         LikelihoodModelResults, GenericLikelihoodModel)
 from scikits.statsmodels.regression.linear_model import yule_walker, GLS
 from tsatools import lagmat
-from var import AR
+from ar import AR
 from scikits.statsmodels.sandbox.regression.numdiff import approx_fprime, \
         approx_hess, approx_hess_cs
 from kalmanf import KalmanFilter
@@ -56,8 +57,8 @@ class ARMA(GenericLikelihoodModel):
 
         Notes
         -----
-        If necessary, fits an AR process with the laglength selected according to        best BIC.  Obtain the residuals.  Then fit an ARMA(p,q) model via OLS 
-        using these residuals for a first approximation.  Uses a separate OLS 
+        If necessary, fits an AR process with the laglength selected according to        best BIC.  Obtain the residuals.  Then fit an ARMA(p,q) model via OLS
+        using these residuals for a first approximation.  Uses a separate OLS
         regression to find the coefficients of exogenous variables.
 
         References
@@ -71,14 +72,14 @@ class ARMA(GenericLikelihoodModel):
         exog = self.exog
         if k != 0:
             ols_params = GLS(endog, exog).fit().params
-            start_params[:k] = ols_params             
+            start_params[:k] = ols_params
             endog -= np.dot(exog, ols_params).squeeze()
         if q != 0:
             if p != 0:
                 armod = AR(endog).fit(ic='bic', trend='nc')
                 arcoefs_tmp = armod.params
                 p_tmp = armod.laglen
-                resid = endog[p_tmp:] - np.dot(lagmat(endog, p_tmp, 
+                resid = endog[p_tmp:] - np.dot(lagmat(endog, p_tmp,
                                 trim='both'), arcoefs_tmp)
                 X = np.column_stack((lagmat(endog,p,'both')[p_tmp+(q-p):],
                     lagmat(resid,q,'both'))) # stack ar lags and resids
@@ -97,7 +98,7 @@ class ARMA(GenericLikelihoodModel):
 
         Notes
         -----
-        This is a numerical approximation.  
+        This is a numerical approximation.
         """
         loglike = self.loglike
         if self.transparams:
@@ -122,24 +123,24 @@ class ARMA(GenericLikelihoodModel):
     def _transparams(self, params):
         """
         Transforms params to induce stationarity/invertability.
-        
+
         Reference
         ---------
         Jones(1980)
         """
         p,q,k = self.p, self.q, self.k
         newparams = np.zeros_like(params)
-        
+
         # just copy exogenous parameters
         if k != 0:
             newparams[:k] = params[:k]
-        
+
         # AR Coeffs
         if p != 0:
             newparams[k:k+p] = ((1-exp(-params[k:k+p]))/\
                                     (1+exp(-params[k:k+p]))).copy()
             tmp = ((1-exp(-params[k:k+p]))/(1+exp(-params[k:k+p]))).copy()
-        
+
             # levinson-durbin to get pacf
             for j in range(1,p):
                 a = newparams[k+j]
@@ -153,7 +154,7 @@ class ARMA(GenericLikelihoodModel):
                              (1+exp(-params[k+p:k+p+q]))).copy()
             tmp = ((1-exp(-params[k+p:k+p+q]))/\
                         (1+exp(-params[k+p:k+p+q]))).copy()
-        
+
             # levinson-durbin to get macf
             for j in range(1,q):
                 b = newparams[k+p+j]
@@ -177,7 +178,7 @@ class ARMA(GenericLikelihoodModel):
                 a = arcoefs[j]
                 for kiter in range(j):
                     tmp[kiter] = (arcoefs[kiter]+a*arcoefs[j-kiter-1])/(1-a**2)
-                arcoefs[:j] = tmp[:j] 
+                arcoefs[:j] = tmp[:j]
             invarcoefs = -log((1-arcoefs)/(1+arcoefs))
             newparams[k:k+p] = invarcoefs
         # MA coeffs
@@ -187,7 +188,7 @@ class ARMA(GenericLikelihoodModel):
                 b = macoefs[j]
                 for kiter in range(j):
                     tmp[kiter] = (macoefs[kiter]-b *macoefs[j-kiter-1])/(1-b**2)
-                macoefs[:j] = tmp[:j] 
+                macoefs[:j] = tmp[:j]
             invmacoefs = -log((1-macoefs)/(1+macoefs))
             newparams[k+p:k+p+q] = invmacoefs
         return newparams
@@ -229,8 +230,8 @@ class ARMA(GenericLikelihoodModel):
         llf = -(nobs-p)/2.*(log(2*pi) + log(sigma2)) - ssr/(2*sigma2)
         return llf
 
-    def fit(self, order, start_params=None, trend='c', method = "css-mle", 
-            transparams=True, solver=None, maxiter=35, full_output=1, 
+    def fit(self, order, start_params=None, trend='c', method = "css-mle",
+            transparams=True, solver=None, maxiter=35, full_output=1,
             disp=1, callback=None, **kwargs):
         """
         Fits ARMA(p,q) model using exact maximum likelihood via Kalman filter.
@@ -247,22 +248,22 @@ class ARMA(GenericLikelihoodModel):
         method : str {'css-mle','mle','css'}
             This is the loglikelihood to maximize.  If "css-mle", the conditional
             sum of squares likelihood is maximized and its values are used as
-            starting values for the computation of the exact likelihood via the 
+            starting values for the computation of the exact likelihood via the
             Kalman filter.  If "mle", the exact likelihood is maximized via the
             Kalman Filter.  If "css" the conditional sum of squares likelihood
-            is maximized.  All three methods use `start_params` as starting 
+            is maximized.  All three methods use `start_params` as starting
             parameters.  See above for more information.
         trend : str {'c','nc'}
             Whehter to include a constant or not.  'c' includes constant,
             'nc' no constant.
         solver : str or None, optional
             Solver to be used.  The default is 'l_bfgs' (limited memory Broyden-
-            Fletcher-Goldfarb-Shanno).  Other choices are 'bfgs', 'newton' 
-            (Newton-Raphson), 'nm' (Nelder-Mead), 'cg' - (conjugate gradient), 
+            Fletcher-Goldfarb-Shanno).  Other choices are 'bfgs', 'newton'
+            (Newton-Raphson), 'nm' (Nelder-Mead), 'cg' - (conjugate gradient),
             'ncg' (non-conjugate gradient), and 'powell'.
             The limited memory BFGS uses m=30 to approximate the Hessian,
             projected gradient tolerance of 1e-7 and factr = 1e3.  These
-            cannot currently be changed for l_bfgs.  See notes for more 
+            cannot currently be changed for l_bfgs.  See notes for more
             information.
         maxiter : int, optional
             The maximum number of function evaluations. Default is 35.
@@ -298,7 +299,7 @@ class ARMA(GenericLikelihoodModel):
         """
         # enforce invertibility
         self.transparams = transparams
-        
+
         self.method = method.lower()
 
         # get model order
@@ -359,8 +360,8 @@ class ARMA(GenericLikelihoodModel):
 
         if solver is None:  # use default limited memory bfgs
             bounds = [(None,)*2]*(p+q+k)
-            mlefit = optimize.fmin_l_bfgs_b(loglike, start_params, 
-                    approx_grad=True, m=12, pgtol=1e-8, factr=1e2, 
+            mlefit = optimize.fmin_l_bfgs_b(loglike, start_params,
+                    approx_grad=True, m=12, pgtol=1e-8, factr=1e2,
                     bounds=bounds, iprint=disp)
             self.mlefit = mlefit
             params = mlefit[0]
@@ -373,10 +374,10 @@ class ARMA(GenericLikelihoodModel):
             params = mlefit.params
 
         if transparams: # transform parameters back
-            params = self._transparams(params) 
+            params = self._transparams(params)
 
         self.transparams = False # set to false so methods don't expect transf.
-        
+
         normalized_cov_params = None
 
         return ARMAResults(self, params, normalized_cov_params)
@@ -415,7 +416,7 @@ class ARMAResults(LikelihoodModelResults):
 #NOTE: why don't root finding functions work well?
 #    @cache_readonly
 #    def mafreq(eslf):
-#        return 
+#        return
 
 
     @cache_readonly
@@ -438,12 +439,12 @@ class ARMAResults(LikelihoodModelResults):
     def bse(self):
         #TODO: see note above
         if not fast_kalman or self.model.method == "css":
-            return np.sqrt(np.diag(-inv(approx_hess_cs(self.params, 
+            return np.sqrt(np.diag(-inv(approx_hess_cs(self.params,
                 self.model.loglike, epsilon=1e-5))))
-        else: 
-            return np.sqrt(np.diag(-inv(approx_hess(self.params, 
+        else:
+            return np.sqrt(np.diag(-inv(approx_hess(self.params,
                 self.model.loglike, epsilon=1e-3)[0])))
-            
+
 
     def cov_params(self): # add scale argument?
         func = self.model.loglike
@@ -454,7 +455,7 @@ class ARMAResults(LikelihoodModelResults):
             return -inv(approx_hess(x0, func, epsilon=1e-3)[0])
 
     def t(self):    # overwrites t() because there is no cov_params
-        return self.params/self.bse 
+        return self.params/self.bse
 
     @cache_readonly
     def aic(self):
@@ -490,7 +491,7 @@ class ARMAResults(LikelihoodModelResults):
         # add deterministic part back in
         k = self.k
 #TODO: this needs to be commented out for MLE with constant
-        
+
 #        if k != 0:
 #            fv += dot(exog, self.params[:k])
         return fv
@@ -501,7 +502,7 @@ class ARMAResults(LikelihoodModelResults):
         model = self.model
         params = self.params
         y = model.endog.copy()
-        
+
         #demean for exog != None
         k = model.k
         if k > 0:
@@ -519,14 +520,14 @@ class ARMAResults(LikelihoodModelResults):
             m = Z_mat.shape[1]
             R_mat = KalmanFilter.R(params, r, k, q, p)
             T_mat = KalmanFilter.T(params, r, k, p)
-    
+
             #initial state and its variance
             alpha = zeros((m,1))
             Q_0 = dot(inv(identity(m**2)-kron(T_mat,T_mat)),
                                 dot(R_mat,R_mat.T).ravel('F'))
             Q_0 = Q_0.reshape(r,r,order='F')
             P = Q_0
-    
+
             resids = empty((nobs,1), dtype=params.dtype)
             for i in xrange(int(nobs)):
                 # Predict
@@ -534,7 +535,7 @@ class ARMAResults(LikelihoodModelResults):
                 resids[i] = v_mat
                 F_mat = dot(dot(Z_mat, P), Z_mat.T)
                 Finv = 1./F_mat # always scalar for univariate series
-                K = dot(dot(dot(T_mat,P),Z_mat.T),Finv) # Kalman Gain Matrix 
+                K = dot(dot(dot(T_mat,P),Z_mat.T),Finv) # Kalman Gain Matrix
                 # update state
                 alpha = dot(T_mat, alpha) + dot(K,v_mat)
                 L = T_mat - dot(K,Z_mat)
@@ -573,7 +574,7 @@ if __name__ == "__main__":
     # test CSS
     arma22_css = ARMA(y_arma22)
     res22css = arma22_css.fit(trend='nc', order=(2,2), method='css')
-    
+
 
     data = sm.datasets.sunspots.load()
     ar = ARMA(data.endog)
@@ -582,7 +583,7 @@ if __name__ == "__main__":
     y_arma31 = arma_generate_sample([1,-.75,-.35,.25],[.1], nsample=1000)
 
     arma31css = ARMA(y_arma31)
-    res31css = arma31css.fit(order=(3,1), method="css", trend="nc", 
+    res31css = arma31css.fit(order=(3,1), method="css", trend="nc",
             transparams=True)
 
     y_arma13 = arma_generate_sample([1., -.75],[1,.25,-.5,.8], nsample=1000)
@@ -591,7 +592,7 @@ if __name__ == "__main__":
 
 
 # check css for p < q and q < p
-    y_arma41 = arma_generate_sample([1., -.75, .35, .25, -.3],[1,-.35], 
+    y_arma41 = arma_generate_sample([1., -.75, .35, .25, -.3],[1,-.35],
                     nsample=1000)
     arma41css = ARMA(y_arma41)
     res41css = arma41css.fit(order=(4,1), trend='nc', method='css')
