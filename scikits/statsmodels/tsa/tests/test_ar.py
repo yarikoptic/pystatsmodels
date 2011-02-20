@@ -2,7 +2,7 @@
 Test AR Model
 """
 import scikits.statsmodels.api as sm
-from scikits.statsmodels.tsa import AR
+from scikits.statsmodels.tsa.ar import AR
 from numpy.testing import assert_almost_equal, assert_equal
 from results import results_ar
 import numpy as np
@@ -17,7 +17,7 @@ class CheckAR(object):
         assert_almost_equal(self.res1.params, self.res2.params, DECIMAL_6)
 
     def test_bse(self):
-        bse = np.sqrt(np.diag(self.res1.cov_params())) # no dof correction 
+        bse = np.sqrt(np.diag(self.res1.cov_params())) # no dof correction
                                             # for compatability with Stata
         assert_almost_equal(bse, self.res2.bse_stata, DECIMAL_6)
         assert_almost_equal(self.res1.bse, self.res2.bse_gretl, DECIMAL_5)
