@@ -31,6 +31,8 @@ extensions = ['sphinx.ext.autodoc', 'sphinx.ext.doctest',
               'sphinx.ext.pngmath', 'sphinx.ext.ifconfig',
               'sphinx.ext.viewcode', 'sphinx.ext.autosummary',
               'sphinx.ext.coverage', 'sphinx.ext.inheritance_diagram',
+              'matplotlib.sphinxext.only_directives',
+              'matplotlib.sphinxext.plot_directive',
               'numpy_ext.numpydoc']
 
 # Add any paths that contain templates here, relative to this directory.
@@ -64,10 +66,10 @@ version = '0.3.0'
 release = '0.3.0'
 try:
     import subprocess
-    retcode = subprocess.check_call("bzr revno", shell=True, 
+    retcode = subprocess.check_call("bzr revno", shell=True,
             stdout=subprocess.PIPE)
     if retcode == 0:
-        revno = subprocess.Popen("bzr revno", shell=True, 
+        revno = subprocess.Popen("bzr revno", shell=True,
                 stdout=subprocess.PIPE).communicate()[0]
         revno = revno.rstrip()
         release += " rev " + revno
