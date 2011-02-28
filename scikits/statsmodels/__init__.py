@@ -28,8 +28,8 @@ from numpy.testing import Tester
 class NoseWrapper(Tester):
     '''
     This is simply a monkey patch for numpy.testing.Tester.
-    
-    It allows extra_argv to be changed from its default None to ['--exe'] so 
+
+    It allows extra_argv to be changed from its default None to ['--exe'] so
     that the tests can be run the same across platforms.  It also takes kwargs
     that are passed to numpy.errstate to suppress floating point warnings.
     '''

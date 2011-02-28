@@ -7,8 +7,8 @@
 Time Series analysis :mod:`tsa`
 ===============================
 
-:mos:`scikits.statmodels.tsa` contains model classes and functions that are useful 
-for time series analysis. This currently includes univariate autoregressive models (AR), 
+:mod:`scikits.statmodels.tsa` contains model classes and functions that are useful
+for time series analysis. This currently includes univariate autoregressive models (AR),
 vector autoregressive models (VAR) and univariate autoregressive moving average models
 (ARMA). It also includes descriptive statistics for time series, for example autocorrelation, partial
 autocorrelation function and periodogram, as well as the corresponding theoretical properties
@@ -16,7 +16,7 @@ of ARMA or related processes. It also includes methods to work with autoregressi
 moving average lag-polynomials.
 Additionally, related statistical tests and some useful helper functions are available.
 
-Estimation is either done by exact or conditional Maximum Likelihood or conditional 
+Estimation is either done by exact or conditional Maximum Likelihood or conditional
 least-squares, either using Kalman Filter or direct filters.
 
 Currently, functions and classes have to be imported from the corresponding module, but
@@ -25,8 +25,8 @@ structure is within scikits.statsmodels.tsa is
 
  - stattools : empirical properties and tests, acf, pacf, granger-causality,
  	  adf unit root test, ljung-box test and others.
- - var : contains univariate AR and multivariate AR (VAR) estimation models, either 
-      conditional LS or MLE or exact MLE.
+ - var : multivariate AR (VAR) estimation models, impulse response analysis, forecast
+   error variance decompositions, and data visualization tools
  - arma_mle : estimation class for univariate ARMA with conditional least squares or
  	  conditional MLE
  - kalmanf : estimation classes for ARMA and other models with exact MLE using Kalman Filter
@@ -37,25 +37,25 @@ structure is within scikits.statsmodels.tsa is
  - sandbox.tsa.fftarma : similar to arma_process but working in frequency domain
  - tsatools : additional helper functions, to create arrays of lagged variables, construct
       regressors for trend, detrend and similar.
- - filters : 
-      
+ - filters :
+
 Some additional functions that are also useful for time series analysis are in other parts
 of statsmodels, for example additional statistical tests.
 
-Some related functions are also available in matplotlib, nitime, and scikits.talkbox. 
-Those functions are designed more for the use in signal processing where longer time 
-series are available and work more often in the frequency domain. 
- 
+Some related functions are also available in matplotlib, nitime, and scikits.talkbox.
+Those functions are designed more for the use in signal processing where longer time
+series are available and work more often in the frequency domain.
+
 
 .. currentmodule:: scikits.statsmodels.tsa
 
-      
+
 Time Series Properties
 """"""""""""""""""""""
 
 .. autosummary::
    :toctree: generated/
-      
+
    stattools.acovf
    stattools.acf
    stattools.pacf
@@ -68,39 +68,36 @@ Time Series Properties
    stattools.q_stat
    stattools.grangercausalitytests
    stattools.levinson_durbin
-   
+
 Estimation
 """"""""""
 
 .. autosummary::
    :toctree: generated/
 
-   var.AR
-   var.ARResults
-   var.VAR
-   var.VAR2
-   var.VARMAResults
+   ar.AR
+   ar.ARResults
+   var.varmod.VAR
+   var.varmod.VARResults
    arma_mle.Arma
 
-Arma and Kalman Filter
+ARMA and Kalman Filter
 ~~~~~~~~~~~~~~~~~~~~~~
 
 .. currentmodule:: scikits.statsmodels.tsa
 
 .. autosummary::
    :toctree: generated/
-   
+
    arima.ARMA
    arima.ARMAResults
-   kalmanf.kalmanf.StateSpaceModel
-   kalmanf.kalmanf.kalmanfilter
-   kalmanf.kalmanf.kalmansmooth
-   
-.. currentmodule:: scikits.statsmodels.tsa   
+   kalmanf.kalmanfilter.KalmanFilter
+
+.. currentmodule:: scikits.statsmodels.tsa
 
 ARMA Process
 """"""""""""
-   
+
 .. autosummary::
    :toctree: generated/
 
@@ -120,7 +117,7 @@ ARMA Process
    arima_process.lpol_fiar
    arima_process.lpol_fima
    arima_process.lpol_sdiff
-   
+
 .. currentmodule:: scikits.statsmodels
 
 .. autosummary::
@@ -132,34 +129,45 @@ ARMA Process
 
 Other Time Series Filters
 """""""""""""""""""""""""
-   
+
 .. autosummary::
    :toctree: generated/
-      
+
    filters.arfilter
    filters.fftconvolve3
    filters.fftconvolveinv
    filters.miso_lfilter
 
 
-TSA Tools   
+TSA Tools
 """""""""
-   
+
 .. autosummary::
    :toctree: generated/
-      
+
    tsatools.add_constant
    tsatools.add_trend
    tsatools.detrend
    tsatools.lagmat
    tsatools.lagmat2ds
 
+Vector Autogressive Processes (VAR)
+"""""""""""""""""""""""""""""""""""
+
+.. seealso:: :ref:`VAR documentation <var>`
 
 VARMA Process
 """""""""""""
-   
+
 .. autosummary::
    :toctree: generated/
 
    varma_process.VarmaPoly
 
+Interpolation
+"""""""""""""
+
+.. autosummary::
+   :toctree: generated/
+
+   interp.denton.dentonm

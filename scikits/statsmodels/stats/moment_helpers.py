@@ -2,7 +2,7 @@
 
 contains:
 
-* conversion between central and non-central moments, skew, kurtosis and 
+* conversion between central and non-central moments, skew, kurtosis and
   cummulants
 
 
@@ -12,19 +12,19 @@ Author: josef-pktd
 
 import numpy as np
 #fix these imports
-import scipy  
+import scipy
 #from scipy import stats   #not used here
 
 ## start moment helpers
 
-def mc2mnc(mc_):
+def mc2mnc(_mc):
     '''convert central to non-central moments, uses recursive formula
     optionally adjusts first moment to return mean
 
     '''
-    n = len(mc_)
-    mean = mc_[0]
-    mc = [1] + list(mc_)    # add zero moment = 1
+    n = len(_mc)
+    mean = _mc[0]
+    mc = [1] + list(_mc)    # add zero moment = 1
     mc[1] = 0  # define central mean as zero for formula
     mnc = [1, mean] # zero and first raw moments
     for nn,m in enumerate(mc[2:]):
@@ -36,14 +36,14 @@ def mc2mnc(mc_):
     return mnc[1:]
 
 
-def mnc2mc(mnc_, wmean = True):
+def mnc2mc(_mnc, wmean = True):
     '''convert non-central to central moments, uses recursive formula
     optionally adjusts first moment to return mean
 
     '''
-    n = len(mnc_)
-    mean = mnc_[0]
-    mnc = [1] + list(mnc_)    # add zero moment = 1
+    n = len(_mnc)
+    mean = _mnc[0]
+    mnc = [1] + list(_mnc)    # add zero moment = 1
     mu = [] #np.zeros(n+1)
     for n,m in enumerate(mnc):
         mu.append(0)
@@ -53,9 +53,9 @@ def mnc2mc(mnc_, wmean = True):
     if wmean:
         mu[1] = mean
     return mu[1:]
-    
-    
-def cum2mc(kappa_):
+
+
+def cum2mc(_kappa):
     '''convert non-central moments to cumulants
     recursive formula produces as many cumulants as moments
 
@@ -63,45 +63,45 @@ def cum2mc(kappa_):
     ----------
     Kenneth Lange: Numerical Analysis for Statisticians, page 40
     (http://books.google.ca/books?id=gm7kwttyRT0C&pg=PA40&lpg=PA40&dq=convert+cumulants+to+moments&source=web&ots=qyIaY6oaWH&sig=cShTDWl-YrWAzV7NlcMTRQV6y0A&hl=en&sa=X&oi=book_result&resnum=1&ct=result)
- 
-    
+
+
     '''
-    mc = [1,0.0] #kappa_[0]]  #insert 0-moment and mean 
-    kappa = [1] + list(kappa_)
+    mc = [1,0.0] #_kappa[0]]  #insert 0-moment and mean
+    kappa = [1] + list(_kappa)
     for nn,m in enumerate(kappa[2:]):
-        n = nn+2             
+        n = nn+2
         mc.append(0)
         for k in range(n-1):
             mc[n] += scipy.comb(n-1,k,exact=1) * kappa[n-k]*mc[k]
 
-    mc[1] = kappa_[0] # insert mean as first moments by convention 
+    mc[1] = _kappa[0] # insert mean as first moments by convention
     return mc[1:]
 
 
-def mnc2cum(mnc_):
+def mnc2cum(_mnc):
     '''convert non-central moments to cumulants
     recursive formula produces as many cumulants as moments
 
     http://en.wikipedia.org/wiki/Cumulant#Cumulants_and_moments
     '''
-    mnc = [1] + list(mnc_)
+    mnc = [1] + list(_mnc)
     kappa = [1]
     for nn,m in enumerate(mnc[1:]):
         n = nn+1
         kappa.append(m)
         for k in range(1,n):
             kappa[n] -= scipy.comb(n-1,k-1,exact=1) * kappa[k]*mnc[n-k]
-            
+
     return kappa[1:]
 
 
 def mvsk2mc(args):
     '''convert mean, variance, skew, kurtosis to central moments'''
     mu,sig2,sk,kur = args
-    
+
     cnt = [None]*4
     cnt[0] = mu
-    cnt[1] = sig2 
+    cnt[1] = sig2
     cnt[2] = sk * sig2**1.5
     cnt[3] = (kur+3.0) * sig2**2.0
     return tuple(cnt)
@@ -127,7 +127,7 @@ def mc2mvsk(args):
 
 def mnc2mvsk(args):
     '''convert central moments to mean, variance, skew, kurtosis
-    '''    
+    '''
     #convert four non-central moments to central moments
     mnc, mnc2, mnc3, mnc4 = args
     mc = mnc

@@ -35,7 +35,7 @@ def copula_bv_max(u, v):
 
 def copula_bv_clayton(u, v, theta):
     '''Clayton or Cook, Johnson bivariate copula
-    '''    
+    '''
     if not theta > 0:
         raise ValueError('theta needs to be strictly positive')
     return np.power(np.power(u, -theta) + np.power(v, -theta) - 1, -theta)
@@ -62,7 +62,7 @@ class Transforms(object):
         pass
 
 class TransfFrank(object):
-    
+
     def evaluate(self, t, theta):
         return - (np.log(-expm1(-theta*t)) - np.log(-expm1(-theta)))
         #return - np.log(expm1(-theta*t) / expm1(-theta))
@@ -88,7 +88,7 @@ class TransfGumbel(object):
 
     def _checkargs(theta):
         return theta >= 1
-    
+
     def evaluate(self, t, theta):
         return np.power(-np.log(t), theta)
 
@@ -100,7 +100,7 @@ class TransfIndep(object):
         return -np.log(t)
 
     def inverse(self, phi):
-        return np.exp(-phi)    
+        return np.exp(-phi)
 
 def copula_bv_archimedean(u, v, transform, args=()):
     '''
@@ -133,7 +133,7 @@ def transform_tawn(t, a1, a2, theta):
     restrictions:
      - theta in (0,1]
      - a1, a2 in [0,1]
-    '''    
+    '''
 
     def _check_args(a1, a2, theta):
         condth = (theta > 0) & (theta <= 1)
@@ -146,7 +146,8 @@ def transform_tawn(t, a1, a2, theta):
 
     transf = (1 - a1) * (1-t)
     transf += (1 - a2) * t
-    transf += ((a1 * t)**(1./theta) + (a2 * (1-t))**(1./theta))**(theta)
+    transf += ((a1 * t)**(1./theta) + (a2 * (1-t))**(1./theta))**theta
+
     return transf
 
 def transform_joe(t, a1, a2, theta):
@@ -157,7 +158,7 @@ def transform_joe(t, a1, a2, theta):
     restrictions:
      - theta in (0,inf)
      - a1, a2 in (0,1]
-    '''    
+    '''
 
     def _check_args(a1, a2, theta):
         condth = (theta > 0)
@@ -171,6 +172,7 @@ def transform_joe(t, a1, a2, theta):
     transf = 1 - ((a1 * (1-t))**(-1./theta) + (a2 * t)**(-1./theta))**(-theta)
     return transf    
 
+
 def transform_tawn2(t, theta, k):
     '''asymmetric mixed model of Tawn 1988
 
@@ -178,11 +180,11 @@ def transform_tawn2(t, theta, k):
         Tiago de Oliveira 1980
 
     restrictions:
-     - theta > 0 
+     - theta > 0
      - theta + 3*k > 0
      - theta + k <= 1
      - theta + 2*k <= 1
-    '''    
+    '''
 
     def _check_args(theta, k):
         condth = (theta >= 0)
@@ -203,7 +205,7 @@ def transform_bilogistic(t, beta, delta):
      - (beta, delta) in (-inf,0)^2
 
     not vectorized because of numerical integration
-    '''    
+    '''
 
     def _check_args(beta, delta):
         cond1 = (beta > 0) & (beta <= 1) & (delta > 0) & (delta <= 1)
@@ -229,10 +231,10 @@ def transform_hr(t, lamda):
 
     restrictions:
      - lambda in (0,inf)
-    '''    
+    '''
 
     def _check_args(lamda):
-        cond = (theta > 0)
+        cond = (lamda > 0)
         return cond
 
     if not np.all(_check_args(lamda)):
@@ -250,7 +252,7 @@ def transform_tev(t, rho, x):
     restrictions:
      - rho in (-1,1)
      - x > 0
-    '''    
+    '''
 
     def _check_args(rho, x):
         cond1 = (x > 0)
@@ -265,7 +267,7 @@ def transform_tev(t, rho, x):
     z = np.sqrt(1. + x) * (np.power(t/(1.-t), 1./x) - rho)
     z /= np.sqrt(1 - rho*rho)
     transf = (1 - t) * stats_t._cdf(z, x+1) + t * stats_t._cdf(z, x+1)
-    return transf   
+    return transf
 
 #define dictionary of copulas by names and aliases
 copulanames = {'indep' : copula_bv_indep,
@@ -309,6 +311,6 @@ class CopulaBivariate(object):
         return self.copula(self.marginalcdfs[0](x), self.marginalcdfs[1](y),
                            *args)
 
-    
-        
-        
+
+
+

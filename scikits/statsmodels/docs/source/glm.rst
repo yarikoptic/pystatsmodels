@@ -36,7 +36,7 @@ Model Class
 
 .. autosummary::
    :toctree: generated/
-   
+
    GLM
 
 Results Class
@@ -58,7 +58,7 @@ The distribution families currently implemented are
 
 .. autosummary::
    :toctree: generated/
-   
+
    Family
    Binomial
    Gamma
@@ -72,18 +72,20 @@ Link Functions
 ^^^^^^^^^^^^^^
 
 The link functions currently implemented are the following. Not all link
-functions are available for each distribution family. The list of 
-available link functions can be obtained by ::
+functions are available for each distribution family. The list of
+available link functions can be obtained by
 
->>> sm.families.family.<familyname>.available ?
+::
+
+    >>> sm.families.family.<familyname>.available ?
 
 .. currentmodule:: scikits.statsmodels.genmod.families.links
 
 .. autosummary::
    :toctree: generated/
-   
+
    Link
-   
+
    CDFLink
    CLogLog
    Log
@@ -93,7 +95,7 @@ available link functions can be obtained by ::
    cauchy
    cloglog
    identity
-   inverse
+   inverse_power
    inverse_squared
    log
    logit
