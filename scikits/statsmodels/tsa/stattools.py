@@ -17,7 +17,7 @@ class ResultsStore(object):
     def __str__(self):
         return self._str
 
-def _autolag(mod, endog, exog, startlag, maxlag, method, modargs=(), 
+def _autolag(mod, endog, exog, startlag, maxlag, method, modargs=(),
         fitargs=()):
     """
     Returns the results for the lag length that maximimizes the info criterion.
@@ -51,10 +51,10 @@ def _autolag(mod, endog, exog, startlag, maxlag, method, modargs=(),
     -----
     Does estimation like mod(endog, exog[:,:i], *modargs).fit(*fitargs)
     where i goes from lagstart to lagstart+maxlag+1.  Therefore, lags are
-    assumed to be in contiguous columns from low to high lag length with 
+    assumed to be in contiguous columns from low to high lag length with
     the highest lag in the last column.
     """
-#TODO: can tcol be replaced by maxlag + 2?    
+#TODO: can tcol be replaced by maxlag + 2?
 #TODO: This could be changed to laggedRHS and exog keyword arguments if this
 #    will be more general.
 
@@ -87,18 +87,18 @@ def _autolag(mod, endog, exog, startlag, maxlag, method, modargs=(),
 
 #this needs to be converted to a class like HetGoldfeldQuandt, 3 different returns are a mess
 # See:
-#Ng and Perron(2001), Lag length selection and the construction of unit root 
+#Ng and Perron(2001), Lag length selection and the construction of unit root
 #tests with good size and power, Econometrica, Vol 69 (6) pp 1519-1554
 #TODO: include drift keyword, only valid with regression == "c"
 # just changes the distribution of the test statistic to a t distribution
 #TODO: autolag is untested
-def adfuller(x, maxlag=None, regression="c", autolag='AIC', 
+def adfuller(x, maxlag=None, regression="c", autolag='AIC',
     store=False, regresults=False):
     '''Augmented Dickey-Fuller unit root test
 
-    The Augmented Dickey-Fuller test can be used to test for a unit root in a 
+    The Augmented Dickey-Fuller test can be used to test for a unit root in a
     univariate process in the presence of serial correlation.
-    
+
     Parameters
     ----------
     x : array_like, 1d
@@ -115,7 +115,7 @@ def adfuller(x, maxlag=None, regression="c", autolag='AIC',
         * if None, then maxlag lags are used
         * if 'AIC' or 'BIC', then the number of lags is chosen to minimize the
           corresponding information criterium
-        * 't-stat' based choice of maxlag.  Starts with maxlag and drops a 
+        * 't-stat' based choice of maxlag.  Starts with maxlag and drops a
           lag until the t-statistic on the last lag length is significant at
           the 95 % level.
     store : bool
@@ -123,7 +123,7 @@ def adfuller(x, maxlag=None, regression="c", autolag='AIC',
         the adf statistic
     regresults : bool
         If True, the full regression results are returned.
-        
+
     Returns
     -------
     adf : float
@@ -141,10 +141,10 @@ def adfuller(x, maxlag=None, regression="c", autolag='AIC',
     icbest : float
         The maximized information criterion if autolag is not None.
     regresults : RegressionResults instance
-        The 
+        The
     resstore : (optional) instance of ResultStore
         an instance of a dummy class with results attached as attributes
-    
+
     Notes
     -----
     If the p-value is close to significant, then the critical values should be
@@ -153,7 +153,7 @@ def adfuller(x, maxlag=None, regression="c", autolag='AIC',
     Examples
     --------
     see example script
-    
+
     References
     ----------
     Greene
@@ -161,14 +161,14 @@ def adfuller(x, maxlag=None, regression="c", autolag='AIC',
 
 
     P-Values (regression surface approximation)
-    MacKinnon, J.G. 1994.  "Approximate asymptotic distribution functions for 
-        unit-root and cointegration tests.  `Journal of Business and Economic
-        Statistics` 12, 167-76.
+    MacKinnon, J.G. 1994.  "Approximate asymptotic distribution functions for
+    unit-root and cointegration tests.  `Journal of Business and Economic
+    Statistics` 12, 167-76.
 
     Critical values
-    MacKinnon, J.G. 2010. "Critical Values for Cointegration Tests."  
-        Queen's University, Dept of Economics, Working Papers.  Available at
-        http://ideas.repec.org/p/qed/wpaper/1227.html
+    MacKinnon, J.G. 2010. "Critical Values for Cointegration Tests."  Queen's
+    University, Dept of Economics, Working Papers.  Available at
+    http://ideas.repec.org/p/qed/wpaper/1227.html
     '''
     trenddict = {None:'nc', 0:'c', 1:'ct', 2:'ctt'}
     if regression is None or isinstance(regression, int):
@@ -190,7 +190,7 @@ def adfuller(x, maxlag=None, regression="c", autolag='AIC',
     xdall[:,0] = x[-nobs-1:-1] # replace 0 xdiff with level of x
     xdshort = xdiff[-nobs:]
 
-    if store: 
+    if store:
         resstore = ResultsStore()
     if autolag:
         if regression != 'nc':
@@ -203,7 +203,7 @@ def adfuller(x, maxlag=None, regression="c", autolag='AIC',
         #Note: use the same number of observations to have comparable IC
         icbest, bestlag = _autolag(OLS, xdshort, fullRHS, startlag,
                 maxlag, autolag)
-        
+
         #rerun ols with best autolag
         xdall = lagmat(xdiff[:,None], bestlag, trim='both', original='in')
         nobs = xdall.shape[0]
@@ -213,13 +213,13 @@ def adfuller(x, maxlag=None, regression="c", autolag='AIC',
     else:
         usedlag = maxlag
         icbest = None
-    if regression != 'nc': 
+    if regression != 'nc':
         resols = OLS(xdshort, add_trend(xdall[:,:usedlag+1], regression)).fit()
     else:
         resols = OLS(xdshort, xdall[:,:usedlag+1]).fit()
     adfstat = resols.t(0)
 #    adfstat = (resols.params[0]-1.0)/resols.bse[0]
-    # the "asymptotically correct" z statistic is obtained as 
+    # the "asymptotically correct" z statistic is obtained as
     # nobs/(1-np.sum(resols.params[1:-(trendorder+1)])) (resols.params[0] - 1)
     # I think this is the statistic that is used for series that are integrated
     # for orders higher than I(1), ie., not ADF but cointegration tests.
@@ -246,9 +246,9 @@ def adfuller(x, maxlag=None, regression="c", autolag='AIC',
             return adfstat, pvalue, usedlag, nobs, critvalues, icbest
 
 def acovf(x, unbiased=False, demean=True, fft=False):
-    ''' 
+    '''
     Autocovariance for 1D
-    
+
     Parameters
     ----------
     x : array
@@ -258,7 +258,7 @@ def acovf(x, unbiased=False, demean=True, fft=False):
     fft : bool
         If True, use FFT convolution.  This method should be preferred
         for long time series.
-       
+
     Returns
     -------
     acovf : array
@@ -318,7 +318,7 @@ def q_stat(x,nobs, type="ljungbox"):
 def acf(x, unbiased=False, nlags=40, confint=None, qstat=False, fft=False):
     '''
     Autocorrelation function for 1d arrays.
-    
+
     Parameters
     ----------
     x : array
@@ -356,7 +356,7 @@ def acf(x, unbiased=False, nlags=40, confint=None, qstat=False, fft=False):
     series it is recommended to use fft convolution instead.
 
     If unbiased is true, the denominator for the autocovariance is adjusted
-    but the autocorrelation is not an unbiased estimtor. 
+    but the autocorrelation is not an unbiased estimtor.
     '''
     nobs = len(x)
     d = nobs # changes if unbiased
@@ -455,7 +455,7 @@ def pacf_ols(x, nlags=40):
     for k in range(1, nlags+1):
         res = OLS(x0[k:], xlags[k:,:k+1]).fit()
          #np.take(xlags[k:], range(1,k+1)+[-1],
-                            
+
         pacf.append(res.params[-1])
     return np.array(pacf)
 
@@ -468,8 +468,8 @@ def pacf(x, nlags=40, method='ywunbiased'):
         observations of time series for which pacf is calculated
     maxlag : int
         largest lag for which pacf is returned
-    method : 'ywunbiased' (default) or 'ywmle' or 'ols' 
-        specifies which method for the calculations to use, 
+    method : 'ywunbiased' (default) or 'ywmle' or 'ols'
+        specifies which method for the calculations to use,
         - yw or ywunbiased : yule walker with bias correction in denominator for acovf
         - ywm or ywmle : yule walker without bias correction
         - ols - regression of time series on lags of it and on constant
@@ -483,10 +483,10 @@ def pacf(x, nlags=40, method='ywunbiased'):
 
     Notes
     -----
-    This solves yule_walker equations or ols for each desired lag 
+    This solves yule_walker equations or ols for each desired lag
     and contains currently duplicate calculations.
     '''
-    
+
     if method == 'ols':
         return pacf_ols(x, nlags=nlags)
     elif method in ['yw', 'ywu', 'ywunbiased', 'yw_unbiased']:
@@ -504,19 +504,19 @@ def pacf(x, nlags=40, method='ywunbiased'):
         return ld_[2]
     else:
         raise ValueError('method not available')
-                        
+
 
 
 def ccovf(x, y, unbiased=True, demean=True):
     ''' crosscovariance for 1D
-    
+
     Parameters
     ----------
     x, y : arrays
        time series data
     unbiased : boolean
-       if True, then denominators is n-k, otherwise n 
-       
+       if True, then denominators is n-k, otherwise n
+
     Returns
     -------
     ccovf : array
@@ -542,15 +542,15 @@ def ccovf(x, y, unbiased=True, demean=True):
     return (np.correlate(xo,yo,'full') / d)[n-1:]
 
 def ccf(x, y, unbiased=True):
-    '''cross-correlation function for 1d    
+    '''cross-correlation function for 1d
 
     Parameters
     ----------
     x, y : arrays
        time series data
     unbiased : boolean
-       if True, then denominators for autocovariance is n-k, otherwise n 
-       
+       if True, then denominators for autocovariance is n-k, otherwise n
+
     Returns
     -------
     ccf : array
@@ -583,7 +583,7 @@ def pergram(X, kernel='bartlett', log=True):
     Notes
     -----
     The autocovariances are normalized by len(X).
-    The frequencies are calculated as 
+    The frequencies are calculated as
     If len(X) is odd M = (len(X) - 1)/2 else M = len(X)/2. Either way
         freq[i] = 2*[i+1]/T and len(freq) == M
 
@@ -623,19 +623,19 @@ def pergram(X, kernel='bartlett', log=True):
 #TODO: check what to return, for testing and trying out returns everything
 def levinson_durbin(s, nlags=10, isacov=False):
     '''Levinson-Durbin recursion for autoregressive processes
-    
+
     Parameters
     ----------
     s : array_like
         If isacov is False, then this is the time series. If iasacov is true
         then this is interpreted as autocovariance starting with lag 0
     nlags : integer
-        largest lag to include in recursion or order of the autoregressive 
+        largest lag to include in recursion or order of the autoregressive
         process
     isacov : boolean
         flag to indicate whether the first argument, s, contains the autocovariances
         or the data series.
-        
+
     Returns
     -------
     sigma_v : float
@@ -647,14 +647,14 @@ def levinson_durbin(s, nlags=10, isacov=False):
     sigma : ndarray
         entire sigma array from intermediate result, last value is sigma_v
     phi : ndarray
-        entire phi array from intermediate result, last column contains 
+        entire phi array from intermediate result, last column contains
         autoregressive coefficients for AR(nlags) with a leading 1
-        
+
     Notes
     -----
     This function returns currently all results, but maybe we drop sigma and
     phi from the returns.
-    
+
     If this function is called with the time series (isacov=False), then the sample
     autocovariance function is calculated with the default options (biased, no fft).
 
@@ -662,7 +662,7 @@ def levinson_durbin(s, nlags=10, isacov=False):
     s = np.asarray(s)
     order = nlags  #rename compared to nitime
     #from nitime
-    
+
 ##    if sxx is not None and type(sxx) == np.ndarray:
 ##        sxx_m = sxx[:order+1]
 ##    else:
@@ -671,7 +671,7 @@ def levinson_durbin(s, nlags=10, isacov=False):
         sxx_m = s
     else:
         sxx_m = acovf(s)[:order+1]  #not tested
-    
+
     phi = np.zeros((order+1, order+1), 'd')
     sig = np.zeros(order+1)
     # initial points for the recursion
@@ -700,7 +700,7 @@ def grangercausalitytests(x, maxlag, addconst=True):
     prints results
     not verified with other packages,
     all four tests give similar results (1 and 4 identical)
-    
+
     Parameters
     ----------
     x : array, 2d, (nobs,2)
@@ -709,21 +709,21 @@ def grangercausalitytests(x, maxlag, addconst=True):
     maxlag : integer
         the Granger causality test results are calculated for all lags up to
         maxlag
-    
+
     Returns
     -------
     None : no returns
         all test results are currently printed
-        
+
     Notes
     -----
     TODO: convert to function that returns and compare with other packages
-    
+
     '''
     from scipy import stats # lazy import
-    
+
     resli = {}
-    
+
     for mlg in range(1, maxlag+1):
         print '\nGranger Causality'
         print 'number of lags (no zero)', mlg
@@ -772,14 +772,14 @@ def grangercausalitytests(x, maxlag, addconst=True):
         ftres = res2djoint.f_test(rconstr)
         print 'parameter F test:         F=%-8.4f, p=%-8.4f, df_denom=%d, df_num=%d' % \
               (ftres.fvalue, ftres.pvalue, ftres.df_denom, ftres.df_num)
-        
+
         resli[mxlg] = [res2down, res2djoint, rconstr]
-        
+
     return resli
 
 
 
-__all__ = ['acovf', 'acf', 'pacf', 'pacf_yw', 'pacf_ols', 'ccovf', 'ccf', 
+__all__ = ['acovf', 'acf', 'pacf', 'pacf_yw', 'pacf_ols', 'ccovf', 'ccf',
            'pergram', 'q_stat']
 
 if __name__=="__main__":
@@ -791,14 +791,14 @@ if __name__=="__main__":
     adfbic = adfuller(x, autolag="bic")
     adfaic = adfuller(x, autolag="aic")
     adftstat = adfuller(x, autolag="t-stat")
- 
+
 # acf is tested now
     acf1,ci1,Q,pvalue = acf(x, nlags=40, confint=95, qstat=True)
     acf2, ci2,Q2,pvalue2 = acf(x, nlags=40, confint=95, fft=True, qstat=True)
     acf3,ci3,Q3,pvalue3 = acf(x, nlags=40, confint=95, qstat=True, unbiased=True)
     acf4, ci4,Q4,pvalue4 = acf(x, nlags=40, confint=95, fft=True, qstat=True,
             unbiased=True)
-   
+
 # pacf is tested now
 #    pacf1 = pacorr(x)
 #    pacfols = pacf_ols(x, nlags=40)

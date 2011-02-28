@@ -10,7 +10,7 @@ Introduction
 ------------
 
 This section collects various statistical tests and tools.
-Some can be used independently of any models, some are intended as extension to the 
+Some can be used independently of any models, some are intended as extension to the
 models and model results.
 
 API Warning: The functions and objects in this category are spread out in various modules
@@ -27,22 +27,22 @@ Residual Diagnostics and Specification Tests
 --------------------------------------------
 
 .. currentmodule:: scikits.statsmodels.stats.stattools
-   
+
 .. autosummary::
    :toctree: generated/
-   
+
    durbin_watson
    jarque_bera
    omni_normtest
 
-.. currentmodule:: scikits.statsmodels.sandbox.tools.stattools
-   
+.. currentmodule:: scikits.statsmodels.sandbox.stats.diagnostic
+
 .. autosummary::
    :toctree: generated/
-   
+
    acorr_ljungbox
    acorr_lm
-   
+
    breaks_cusumolsresid
    breaks_hansen
    CompareCox
@@ -64,28 +64,28 @@ Univariate Distributions by non-linear Transformations
 ------------------------------------------------------
 
 here for debugging Sphinx
-   
+
 
 
 Goodness of Fit Tests and Measures
 ----------------------------------
- 
+
  some tests for goodness of fit for univariate distributions
- 
+
 .. currentmodule:: scikits.statsmodels.stats.gof
 
 .. autosummary::
    :toctree: generated/
-   
+
    powerdiscrepancy
    gof_chisquare_discrete
    gof_binning_discrete
 
 
- 
+
 Non-Parametric Tests
 --------------------
- 
+
 .. currentmodule:: scikits.statsmodels.sandbox.stats.runs
 
 .. autosummary::
@@ -97,17 +97,17 @@ Non-Parametric Tests
    runstest_2samp
    cochran_q
    Runs
- 
+
 
 Multiple Tests and Multiple Comparison Procedures
 -------------------------------------------------
 
-`multipletests` is a function for p-value correction, which also includes p-value 
+`multipletests` is a function for p-value correction, which also includes p-value
 correction based on fdr in `fdrcorrection`.
 `tukeyhsd` performs simulatenous testing for the comparison of (independent) means.
 These three functions are verified.
 GroupsStats and MultiComparison are convenience classes to multiple comparisons similar
-to one way ANOVA, but still in developement  
+to one way ANOVA, but still in developement
 
 .. currentmodule:: scikits.statsmodels.sandbox.stats.multicomp
 
@@ -120,19 +120,19 @@ to one way ANOVA, but still in developement
 
    GroupsStats
    MultiComparison
-   
+
 The following functions are not (yet) public (here for my own benefit, JP)
 
 .. currentmodule:: scikits.statsmodels.sandbox.stats.multicomp
 
 .. autosummary::
    :toctree: generated/
-   
+
    varcorrection_pairs_unbalanced
    varcorrection_pairs_unequal
    varcorrection_unbalanced
    varcorrection_unequal
-   
+
    StepDown
    catstack
    ccols
@@ -151,36 +151,33 @@ The following functions are not (yet) public (here for my own benefit, JP)
    rejectionline
    set_partition
    set_remove_subs
-   test_tukeyhsd
    tiecorrect
 
 
- 
- 
 Basic Statistics and t-Tests with frequency weights
 ---------------------------------------------------
- 
+
 .. currentmodule:: scikits.statsmodels.stats.weightstats
 
 .. autosummary::
    :toctree: generated/
 
-   CompareMeans 
-   DescrStatsW 
+   CompareMeans
+   DescrStatsW
    tstat_generic
-   
-   
+
+
 Moment Helpers
 --------------
 
-These are utility functions to convert between central and non-central moments, skew, 
-kurtosis and cummulants. 
+These are utility functions to convert between central and non-central moments, skew,
+kurtosis and cummulants.
 
 .. currentmodule:: scikits.statsmodels.stats.moment_helpers
 
 .. autosummary::
    :toctree: generated/
- 
+
    cum2mc
    mc2mnc
    mc2mvsk
@@ -189,7 +186,7 @@ kurtosis and cummulants.
    mnc2mvsk
    mvsk2mc
    mvsk2mnc
- 
- 
- 
- 
+
+
+
+
