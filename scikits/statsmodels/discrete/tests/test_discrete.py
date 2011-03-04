@@ -3,7 +3,7 @@ Tests for discrete models
 
 Notes
 -----
-DECIMAL_3 is used because it seems that there is a loss of precision 
+DECIMAL_3 is used because it seems that there is a loss of precision
 in the Stata *.dta -> *.csv output, NOT the estimator for the Poisson
 tests.
 """
@@ -41,7 +41,7 @@ class CheckModelResults(object):
         assert_almost_equal(self.res1.pvalues, self.res2.pvalues, DECIMAL_4)
 
 #    def test_cov_params(self):
-#        assert_almost_equal(self.res1.cov_params(), self.res2.cov_params, 
+#        assert_almost_equal(self.res1.cov_params(), self.res2.cov_params,
 #                DECIMAL_4)
 
     def test_llf(self):
@@ -54,7 +54,7 @@ class CheckModelResults(object):
         assert_almost_equal(self.res1.llr, self.res2.llr, DECIMAL_3)
 
     def test_llr_pvalue(self):
-        assert_almost_equal(self.res1.llr_pvalue, self.res2.llr_pvalue, 
+        assert_almost_equal(self.res1.llr_pvalue, self.res2.llr_pvalue,
                 DECIMAL_4)
 
     def test_margeff(self):
@@ -81,89 +81,89 @@ class CheckMargEff(object):
     """
     Test marginal effects (margeff) and its options
     """
-    
+
     def test_nodummy_dydxoverall(self):
-        assert_almost_equal(self.res1.margeff(), 
+        assert_almost_equal(self.res1.margeff(),
                 self.res2.margeff_nodummy_dydx, DECIMAL_4)
 
     def test_nodummy_dydxmean(self):
-        assert_almost_equal(self.res1.margeff(at='mean'), 
+        assert_almost_equal(self.res1.margeff(at='mean'),
                 self.res2.margeff_nodummy_dydxmean, DECIMAL_4)
 
     def test_nodummy_dydxmedian(self):
-        assert_almost_equal(self.res1.margeff(at='median'), 
+        assert_almost_equal(self.res1.margeff(at='median'),
                 self.res2.margeff_nodummy_dydxmedian, DECIMAL_4)
 
     def test_nodummy_dydxzero(self):
-        assert_almost_equal(self.res1.margeff(at='zero'), 
+        assert_almost_equal(self.res1.margeff(at='zero'),
                 self.res2.margeff_nodummy_dydxzero, DECIMAL_4)
 
     def test_nodummy_dyexoverall(self):
-        assert_almost_equal(self.res1.margeff(method='dyex'), 
+        assert_almost_equal(self.res1.margeff(method='dyex'),
                 self.res2.margeff_nodummy_dyex, DECIMAL_4)
 
     def test_nodummy_dyexmean(self):
-        assert_almost_equal(self.res1.margeff(at='mean', method='dyex'), 
+        assert_almost_equal(self.res1.margeff(at='mean', method='dyex'),
                 self.res2.margeff_nodummy_dyexmean, DECIMAL_4)
 
     def test_nodummy_dyexmedian(self):
-        assert_almost_equal(self.res1.margeff(at='median', method='dyex'), 
+        assert_almost_equal(self.res1.margeff(at='median', method='dyex'),
                 self.res2.margeff_nodummy_dyexmedian, DECIMAL_4)
 
     def test_nodummy_dyexzero(self):
-        assert_almost_equal(self.res1.margeff(at='zero', method='dyex'), 
+        assert_almost_equal(self.res1.margeff(at='zero', method='dyex'),
                 self.res2.margeff_nodummy_dyexzero, DECIMAL_4)
 
     def test_nodummy_eydxoverall(self):
-        assert_almost_equal(self.res1.margeff(method='eydx'), 
+        assert_almost_equal(self.res1.margeff(method='eydx'),
                 self.res2.margeff_nodummy_eydx, DECIMAL_4)
 
     def test_nodummy_eydxmean(self):
-        assert_almost_equal(self.res1.margeff(at='mean', method='eydx'), 
+        assert_almost_equal(self.res1.margeff(at='mean', method='eydx'),
                 self.res2.margeff_nodummy_eydxmean, DECIMAL_4)
 
     def test_nodummy_eydxmedian(self):
-        assert_almost_equal(self.res1.margeff(at='median', method='eydx'), 
+        assert_almost_equal(self.res1.margeff(at='median', method='eydx'),
                 self.res2.margeff_nodummy_eydxmedian, DECIMAL_4)
 
     def test_nodummy_eydxzero(self):
-        assert_almost_equal(self.res1.margeff(at='zero', method='eydx'), 
+        assert_almost_equal(self.res1.margeff(at='zero', method='eydx'),
                 self.res2.margeff_nodummy_eydxzero, DECIMAL_4)
 
     def test_nodummy_eyexoverall(self):
-        assert_almost_equal(self.res1.margeff(method='eyex'), 
+        assert_almost_equal(self.res1.margeff(method='eyex'),
                 self.res2.margeff_nodummy_eyex, DECIMAL_4)
 
     def test_nodummy_eyexmean(self):
-        assert_almost_equal(self.res1.margeff(at='mean', method='eyex'), 
+        assert_almost_equal(self.res1.margeff(at='mean', method='eyex'),
                 self.res2.margeff_nodummy_eyexmean, DECIMAL_4)
 
     def test_nodummy_eyexmedian(self):
-        assert_almost_equal(self.res1.margeff(at='median', method='eyex'), 
+        assert_almost_equal(self.res1.margeff(at='median', method='eyex'),
                 self.res2.margeff_nodummy_eyexmedian, DECIMAL_4)
 
     def test_nodummy_eyexzero(self):
-        assert_almost_equal(self.res1.margeff(at='zero', method='eyex'), 
+        assert_almost_equal(self.res1.margeff(at='zero', method='eyex'),
                 self.res2.margeff_nodummy_eyexzero, DECIMAL_4)
 
     def test_dummy_dydxoverall(self):
-        assert_almost_equal(self.res1.margeff(dummy=True), 
+        assert_almost_equal(self.res1.margeff(dummy=True),
                 self.res2.margeff_dummy_dydx, DECIMAL_4)
 
     def test_dummy_dydxmean(self):
-        assert_almost_equal(self.res1.margeff(at='mean', dummy=True), 
+        assert_almost_equal(self.res1.margeff(at='mean', dummy=True),
                 self.res2.margeff_dummy_dydxmean, DECIMAL_4)
-    
+
     def test_dummy_eydxoverall(self):
-        assert_almost_equal(self.res1.margeff(method='eydx', dummy=True), 
+        assert_almost_equal(self.res1.margeff(method='eydx', dummy=True),
                 self.res2.margeff_dummy_eydx, DECIMAL_4)
 
     def test_dummy_eydxmean(self):
-        assert_almost_equal(self.res1.margeff(at='mean', method='eydx', 
+        assert_almost_equal(self.res1.margeff(at='mean', method='eydx',
             dummy=True), self.res2.margeff_dummy_eydxmean, DECIMAL_4)
 
 class TestProbitNewton(CheckModelResults):
-    
+
     @classmethod
     def setupClass(cls):
         data = sm.datasets.spector.load()
@@ -174,7 +174,7 @@ class TestProbitNewton(CheckModelResults):
         cls.res2 = res2
 
     def test_predict(self):
-        assert_almost_equal(self.res1.model.predict(self.res1.model.exog), 
+        assert_almost_equal(self.res1.model.predict(self.res1.model.exog),
                 self.res2.predict, DECIMAL_4)
 
     def test_resid(self):
@@ -182,12 +182,12 @@ class TestProbitNewton(CheckModelResults):
 
 
 class TestProbitBFGS(CheckModelResults):
-    
+
     @classmethod
     def setupClass(cls):
         data = sm.datasets.spector.load()
-        data.exog = sm.add_constant(data.exog)        
-        cls.res1 = Probit(data.endog, data.exog).fit(method="bfgs", 
+        data.exog = sm.add_constant(data.exog)
+        cls.res1 = Probit(data.endog, data.exog).fit(method="bfgs",
             disp=0)
         res2 = Spector()
         res2.probit()
@@ -198,7 +198,7 @@ class TestProbitNM(CheckModelResults):
     @classmethod
     def setupClass(cls):
         data = sm.datasets.spector.load()
-        data.exog = sm.add_constant(data.exog)        
+        data.exog = sm.add_constant(data.exog)
         res2 = Spector()
         res2.probit()
         cls.res2 = res2
@@ -209,7 +209,7 @@ class TestProbitPowell(CheckModelResults):
     @classmethod
     def setupClass(cls):
         data = sm.datasets.spector.load()
-        data.exog = sm.add_constant(data.exog)        
+        data.exog = sm.add_constant(data.exog)
         res2 = Spector()
         res2.probit()
         cls.res2 = res2
@@ -222,7 +222,7 @@ class TestProbitCG(CheckModelResults):
         if iswindows:   # does this work with classmethod?
             raise SkipTest("fmin_cg sometimes fails to converge on windows")
         data = sm.datasets.spector.load()
-        data.exog = sm.add_constant(data.exog)        
+        data.exog = sm.add_constant(data.exog)
         res2 = Spector()
         res2.probit()
         cls.res2 = res2
@@ -233,7 +233,7 @@ class TestProbitNCG(CheckModelResults):
     @classmethod
     def setupClass(cls):
         data = sm.datasets.spector.load()
-        data.exog = sm.add_constant(data.exog)        
+        data.exog = sm.add_constant(data.exog)
         res2 = Spector()
         res2.probit()
         cls.res2 = res2
@@ -251,7 +251,7 @@ class TestLogitNewton(CheckModelResults, CheckMargEff):
         cls.res2 = res2
 
     def test_nodummy_exog1(self):
-        assert_almost_equal(self.res1.margeff(atexog={0 : 2.0, 2 : 1.}), 
+        assert_almost_equal(self.res1.margeff(atexog={0 : 2.0, 2 : 1.}),
                 self.res2.margeff_nodummy_atexog1, DECIMAL_4)
 
     def test_nodummy_exog2(self):
@@ -261,12 +261,17 @@ class TestLogitNewton(CheckModelResults, CheckMargEff):
 class TestLogitBFGS(CheckModelResults, CheckMargEff):
     @classmethod
     def setupClass(cls):
+        import scipy
+        major, minor, micro = scipy.__version__.split('.')[:3]
+        if int(minor) < 9:
+            raise SkipTest
+
         data = sm.datasets.spector.load()
         data.exog = sm.add_constant(data.exog)
         res2 = Spector()
         res2.logit()
         cls.res2 = res2
-        cls.res1 = Logit(data.endog, data.exog).fit(method="bfgs", 
+        cls.res1 = Logit(data.endog, data.exog).fit(method="bfgs",
             disp=0)
 
 class TestPoissonNewton(CheckModelResults):
@@ -301,7 +306,7 @@ class TestMNLogitNewtonBaseZero(CheckModelResults):
     def test_k(self):
         assert_equal(self.res1.model.K, self.res2.K)
 
-   
+
 
 
 if __name__ == "__main__":

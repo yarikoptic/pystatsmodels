@@ -20,15 +20,15 @@ class Model(object):
 
     Methods
     -------
-    fit 
+    fit
         Call a models fit method
     predict
-        Return fitted response values for a model.  If the model has 
+        Return fitted response values for a model.  If the model has
 
     Notes
     -----
     `endog` and `exog` are references to any data provided.  So if the data is
-    already stored in numpy arrays and it is changed then `endog` and `exog` 
+    already stored in numpy arrays and it is changed then `endog` and `exog`
     will change as well.
     """
 
@@ -37,12 +37,12 @@ class Model(object):
     def __init__(self, endog, exog=None):
         endog = np.asarray(endog)
         endog = np.squeeze(endog) # for consistent outputs if endog is (n,1)
-        
+
 ##        # not sure if we want type conversion, needs tests with integers
 ##        if np.issubdtype(endog.dtype, int):
 ##            endog = endog.astype(float)
 ##        if np.issubdtype(exog.dtype, int):
-##            endog = exog.astype(float)   
+##            endog = exog.astype(float)
         if not exog is None:
             exog = np.asarray(exog)
             if exog.ndim == 1:
@@ -54,7 +54,7 @@ class Model(object):
             if np.any(exog.var(0) == 0):
                 # assumes one constant in first or last position
                 # avoid exception if more than one constant
-                const_idx = np.where(exog.var(0) == 0)[0][0].item() 
+                const_idx = np.where(exog.var(0) == 0)[0][0].item()
                 if const_idx == exog.shape[1] - 1:
                     exog_names = ['x%d' % i for i in range(1,exog.shape[1])]
                     exog_names += ['const']
@@ -93,7 +93,7 @@ class LikelihoodModel(Model):
     def __init__(self, endog, exog=None):
         super(LikelihoodModel, self).__init__(endog, exog)
         self.initialize()
-        
+
     def initialize(self):
         """
         Initialize (possibly re-initialize) a Model instance. For
@@ -113,15 +113,15 @@ class LikelihoodModel(Model):
     def score(self, params):
         """
         Score vector of model.
-        
+
         The gradient of logL with respect to each parameter.
         """
         raise NotImplementedError
 
     def information(self, params):
         """
-        Fisher information matrix of model 
-        
+        Fisher information matrix of model
+
         Returns -Hessian of loglike evaluated at params.
         """
         raise NotImplementedError
@@ -132,8 +132,8 @@ class LikelihoodModel(Model):
         """
         raise NotImplementedError
 
-    def fit(self, start_params=None, method='newton', maxiter=100, full_output=1,
-            disp=1, fargs=(), callback=None, retall=0, **kwargs):
+    def fit(self, start_params=None, method='newton', maxiter=100,
+            full_output=1,disp=1, fargs=(), callback=None, retall=0, **kwargs):
         """
         Fit method for likelihood based models
 
@@ -143,30 +143,30 @@ class LikelihoodModel(Model):
             Initial guess of the solution for the loglikelihood maximization.
             The default is an array of zeros.
         method : str {'newton','nm','bfgs','powell','cg', or 'ncg'}
-            Method can be 'newton' for Newton-Raphson, 'nm' for Nelder-Mead, 
-            'bfgs' for Broyden-Fletcher-Goldfarb-Shanno, 'powell' for modified 
+            Method can be 'newton' for Newton-Raphson, 'nm' for Nelder-Mead,
+            'bfgs' for Broyden-Fletcher-Goldfarb-Shanno, 'powell' for modified
             Powell's method, 'cg' for conjugate gradient, or 'ncg' for Newton-
             conjugate gradient. `method` determines which solver from
-            scipy.optimize is used.  The explicit arguments in `fit` are passed 
-            to the solver.  Each solver has several optional arguments that are 
-            not the same across solvers.  See the notes section below (or 
+            scipy.optimize is used.  The explicit arguments in `fit` are passed
+            to the solver.  Each solver has several optional arguments that are
+            not the same across solvers.  See the notes section below (or
             scipy.optimize) for the available arguments.
         maxiter : int
             The maximum number of iterations to perform.
         full_output : bool
-            Set to True to have all available output in the Results object's 
-            mle_retvals attribute. The output is dependent on the solver.  
+            Set to True to have all available output in the Results object's
+            mle_retvals attribute. The output is dependent on the solver.
             See LikelihoodModelResults notes section for more information.
         disp : bool
             Set to True to print convergence messages.
         fargs : tuple
-            Extra arguments passed to the likelihood function, i.e., 
+            Extra arguments passed to the likelihood function, i.e.,
             loglike(x,*args)
         callback : callable callback(xk)
             Called after each iteration, as callback(xk), where xk is the
             current parameter vector.
         retall : bool
-            Set to True to return list of solutions at each iteration.  
+            Set to True to return list of solutions at each iteration.
             Available in Results object's mle_retvals attribute.
 
         Notes
@@ -180,7 +180,7 @@ class LikelihoodModel(Model):
                 xtol : float
                     Relative error in params acceptable for convergence
                 ftol : float
-                    Relative error in loglike(params) acceptable for 
+                    Relative error in loglike(params) acceptable for
                     convergence
                 maxfun : int
                     Maximum number of function evaluations to make.
@@ -204,7 +204,7 @@ class LikelihoodModel(Model):
             'ncg'
                 fhess_p : callable f'(x,*args)
                     Function which computes the Hessian of f times an arbitrary
-                    vector, p.  Should only be supplied if 
+                    vector, p.  Should only be supplied if
                     LikelihoodModel.hessian is None.
                 avextol : float
                     Stop when the average relative error in the minimizer
@@ -216,7 +216,7 @@ class LikelihoodModel(Model):
                 xtol : float
                     Line-search error tolerance
                 ftol : float
-                    Relative error in loglike(params) for acceptable for 
+                    Relative error in loglike(params) for acceptable for
                     convergence.
                 maxfun : int
                     Maximum number of function evaluations to make.
@@ -231,13 +231,13 @@ class LikelihoodModel(Model):
             elif self.exog is not None:
                 start_params = [0]*self.exog.shape[1] # fails for shape (K,)?
             else:
-                raise ValueError("If exog is None, then start_params should be \
-specified")
+                raise ValueError("If exog is None, then start_params should be "
+                                 "specified")
         #print 'repr(start_params)', repr(start_params)
         if method.lower() not in methods:
             raise ValueError, "Unknown fit method %s" % method
         method = method.lower()
-#TODO: separate args from nonarg taking score and hessian, ie., 
+#TODO: separate args from nonarg taking score and hessian, ie.,
 # user-supplied and numerically evaluated
 # estimate frprime doesn't take args in most (any?) of the optimize function
         f = lambda params, *args: -self.loglike(params, *args)
@@ -249,7 +249,7 @@ specified")
         if method == 'newton':
             tol = kwargs.setdefault('tol', 1e-8)
             score = lambda params: self.score(params)  #JP: redundant ?
-            hess = lambda params: self.hessian(params) #JP: redundant ? 
+            hess = lambda params: self.hessian(params) #JP: redundant ?
             iterations = 0
             oldparams = np.inf
             newparams = np.asarray(start_params)
@@ -281,11 +281,11 @@ exceeded."
                     print "         Current function value: %f" % fval
                     print "         Iterations %d" % iterations
             if full_output:
-                xopt, fopt, niter, gopt, hopt = (newparams, f(newparams, *fargs), 
+                xopt, fopt, niter, gopt, hopt = (newparams, f(newparams, *fargs),
                     iterations, score(newparams), hess(newparams))
                 converged = not warnflag
                 retvals = {'fopt' : fopt, 'iterations' : niter, 'score' : gopt,
-                        'Hessian' : hopt, 'warnflag' : warnflag, 
+                        'Hessian' : hopt, 'warnflag' : warnflag,
                         'converged' : converged}
                 if retall:
                     retvals.update({'allvecs' : history})
@@ -296,7 +296,7 @@ exceeded."
             ftol = kwargs.setdefault('ftol', 0.0001)
             maxfun = kwargs.setdefault('maxfun', None)
             retvals = optimize.fmin(f, start_params, args=fargs, xtol=xtol,
-                        ftol=ftol, maxiter=maxiter, maxfun=maxfun, 
+                        ftol=ftol, maxiter=maxiter, maxfun=maxfun,
                         full_output=full_output, disp=disp, retall=retall,
                         callback=callback)
             if full_output:
@@ -305,8 +305,8 @@ exceeded."
                 else:
                     xopt, fopt, niter, fcalls, warnflag, allvecs = retvals
                 converged = not warnflag
-                retvals = {'fopt' : fopt, 'iterations' : niter, 
-                    'fcalls' : fcalls, 'warnflag' : warnflag, 
+                retvals = {'fopt' : fopt, 'iterations' : niter,
+                    'fcalls' : fcalls, 'warnflag' : warnflag,
                     'converged' : converged}
                 if retall:
                     retvals.update({'allvecs' : allvecs})
@@ -315,8 +315,8 @@ exceeded."
             norm = kwargs.setdefault('norm', np.Inf)
             epsilon = kwargs.setdefault('epsilon', 1.4901161193847656e-08)
             retvals = optimize.fmin_bfgs(f, start_params, score, args=fargs,
-                            gtol=gtol, norm=norm, epsilon=epsilon, 
-                            maxiter=maxiter, full_output=full_output, 
+                            gtol=gtol, norm=norm, epsilon=epsilon,
+                            maxiter=maxiter, full_output=full_output,
                             disp=disp, retall=retall, callback=callback)
             if full_output:
                 if not retall:
@@ -334,8 +334,8 @@ exceeded."
             fhess_p = kwargs.setdefault('fhess_p', None)
             avextol = kwargs.setdefault('avextol', 1.0000000000000001e-05)
             epsilon = kwargs.setdefault('epsilon', 1.4901161193847656e-08)
-            retvals = optimize.fmin_ncg(f, start_params, score, fhess_p=fhess_p, 
-                            fhess=hess, args=fargs, avextol=avextol, 
+            retvals = optimize.fmin_ncg(f, start_params, score, fhess_p=fhess_p,
+                            fhess=hess, args=fargs, avextol=avextol,
                             epsilon=epsilon, maxiter=maxiter,
                             full_output=full_output, disp=disp, retall=retall,
                             callback=callback)
@@ -347,7 +347,7 @@ exceeded."
                         retvals
                 converged = not warnflag
                 retvals = {'fopt' : fopt, 'fcalls' : fcalls, 'gcalls' : gcalls,
-                    'hcalls' : hcalls, 'warnflag' : warnflag, 
+                    'hcalls' : hcalls, 'warnflag' : warnflag,
                     'converged' : converged}
                 if retall:
                     retvals.update({'allvecs' : allvecs})
@@ -355,10 +355,10 @@ exceeded."
             gtol = kwargs.setdefault('gtol', 1.0000000000000001e-05)
             norm = kwargs.setdefault('norm', np.Inf)
             epsilon = kwargs.setdefault('epsilon', 1.4901161193847656e-08)
-            retvals = optimize.fmin_cg(f, start_params, score, 
-                            gtol=gtol, norm=norm, 
+            retvals = optimize.fmin_cg(f, start_params, score,
+                            gtol=gtol, norm=norm,
                             epsilon=epsilon, maxiter=maxiter,
-                            full_output=full_output, disp=disp, retall=retall, 
+                            full_output=full_output, disp=disp, retall=retall,
                             callback=callback)
             if full_output:
                 if not retall:
@@ -387,7 +387,7 @@ exceeded."
                         retvals
                 converged = not warnflag
                 retvals = {'fopt' : fopt, 'direc' : direc, 'iterations' : niter,
-                    'fcalls' : fcalls, 'warnflag' : warnflag, 'converged' : 
+                    'fcalls' : fcalls, 'warnflag' : warnflag, 'converged' :
                     converged}
                 if retall:
                     retvals.update({'allvecs' : allvecs})
@@ -428,7 +428,7 @@ available'
 class GenericLikelihoodModel(LikelihoodModel):
     """
     Allows the fitting of any likelihood function via maximum likelihood.
-    
+
     A subclass needs to specify at least the log-likelihood
     If the log-likelihood is specified for each observation, then results that
     require the Jacobian will be available. (The other case is not tested yet.)
@@ -439,21 +439,22 @@ class GenericLikelihoodModel(LikelihoodModel):
         'nm'
         'powell'
 
-    Optimization methods that require a likelihood function and a score/gradient.
+    Optimization methods that require a likelihood function and a
+    score/gradient.
         'bfgs'
         'cg'
         'ncg' - A function to compute the Hessian is optional.
 
-    Optimization methods that require a likelihood function, a score/gradient, and a
-    Hessian.
-        'newton' 
-        
+    Optimization methods that require a likelihood function, a score/gradient,
+    and a Hessian.
+        'newton'
+
     If they are not overwritten by a subclass, then numerical gradient, Jacobian
     and Hessian of the log-likelihood are caclulated by numerical forward
-    differentiation. This might results in some cases in precision problems, and 
-    the Hessian might not be positive definite. Even if the Hessian is not positive
-    definite the covariance matrix of the parameter estimates based on the outer
-    product of the Jacobian might still be valid.
+    differentiation. This might results in some cases in precision problems, and
+    the Hessian might not be positive definite. Even if the Hessian is not
+    positive definite the covariance matrix of the parameter estimates based on
+    the outer product of the Jacobian might still be valid.
 
 
     Examples
@@ -473,9 +474,10 @@ class GenericLikelihoodModel(LikelihoodModel):
     res = mod.fit(method="nm", maxiter = 500)
     import numpy as np
     np.allclose(res.params, probit_res.params)
-    
+
     """
-    def __init__(self, endog, exog=None, loglike=None, score=None, hessian=None):
+    def __init__(self, endog, exog=None, loglike=None, score=None,
+                 hessian=None):
     # let them be none in case user wants to use inheritance
         if loglike:
             self.loglike = loglike
@@ -489,7 +491,7 @@ class GenericLikelihoodModel(LikelihoodModel):
             self.nparams = self.df_model = exog.shape[1] if np.ndim(exog)==2 else 1
         super(GenericLikelihoodModel, self).__init__(endog, exog)
 
-    #this is redundant and not used when subclassing 
+    #this is redundant and not used when subclassing
     def initialize(self):
         if not self.score:  # right now score is not optional
             from scikits.statsmodels.sandbox.regression.numdiff import approx_fprime1
@@ -498,75 +500,75 @@ class GenericLikelihoodModel(LikelihoodModel):
                 pass
         else:   # can use approx_hess_p if we have a gradient
             if not self.hessian:
-                pass 
+                pass
 
     def expandparams(self, params):
         '''
         expand to full parameter array when some parameters are fixed
-        
+
         Parameters
         ----------
         params : array
             reduced parameter array
-        
-        Return
-        ------
+
+        Returns
+        -------
         paramsfull : array
             expanded parameter array where fixed parameters are included
-            
+
         Notes
         -----
         Calling this requires that self.fixed_params and self.fixed_paramsmask
         are defined.
-        
+
         *developer notes:*
-        
+
         This can be used in the log-likelihood to ...
-        
+
         this could also be replaced by a more general parameter
         transformation.
-        
+
         '''
         paramsfull = self.fixed_params.copy()
         paramsfull[self.fixed_paramsmask] = params
         return paramsfull
-    
+
     def reduceparams(self, params):
         return params[self.fixed_paramsmask]
-        
+
 
     def loglike(self, params):
         return self.loglikeobs(params).sum(0)
-            
+
     def nloglike(self, params):
         return -self.loglikeobs(params).sum(0)
 
     def loglikeobs(self, params):
         return -self.nloglikeobs(params)
-    
+
     def score(self, params):
         '''Gradient of log-likelihood evaluated at params
-        
+
         '''
         from scikits.statsmodels.sandbox.regression.numdiff import approx_fprime1
         return approx_fprime1(params, self.loglike, epsilon=1e-4).ravel()
-    
+
     def jac(self, params, **kwds):
         '''
-        Jacobian/Gradient of log-likelihood evaluated at params for each 
-        observation. 
-        
+        Jacobian/Gradient of log-likelihood evaluated at params for each
+        observation.
+
         '''
         kwds.setdefault('epsilon', 1e-4)
         from scikits.statsmodels.sandbox.regression.numdiff import approx_fprime1
-        return approx_fprime1(params, self.loglikeobs, **kwds)  
+        return approx_fprime1(params, self.loglikeobs, **kwds)
 
     def hessian(self, params):
         '''Hessian of log-likelihood evaluated at params
-        
+
         '''
         from scikits.statsmodels.sandbox.regression.numdiff import approx_hess
-        return approx_hess(params, self.loglike)[0]  #need options for hess (epsilon)        
+        return approx_hess(params, self.loglike)[0]  #need options for hess (epsilon)
 
     def fit(self, start_params=None, method='nm', maxiter=500, full_output=1,
             disp=1, callback=None, retall=0, **kwargs):
@@ -581,29 +583,29 @@ class GenericLikelihoodModel(LikelihoodModel):
                 start_params = self.start_params
             else:
                 start_params = 0.1 * np.ones(self.nparams)
-        
-        mlefit = super(GenericLikelihoodModel, self).fit(start_params=start_params, 
-                method=method, maxiter=maxiter, full_output=full_output, 
+
+        mlefit = super(GenericLikelihoodModel, self).fit(start_params=start_params,
+                method=method, maxiter=maxiter, full_output=full_output,
                 disp=disp, callback=callback, **kwargs)
         genericmlefit = GenericLikelihoodModelResults(self, mlefit)
-        return genericmlefit 
+        return genericmlefit
     #fit.__doc__ += LikelihoodModel.fit.__doc__
 
     #------------------------------
     #TODO: the following have been moved to the result mixin class
-    #      check if anything is still using them from here 
+    #      check if anything is still using them from here
 
     @cache_readonly
     def jacv(self):
         if not hasattr(self, '_results'):
             raise ValueError('need to call fit first')
         return self.jac(self._results.params)
-        
+
     @cache_readonly
     def hessv(self):
         if not hasattr(self, '_results'):
             raise ValueError('need to call fit first')
-        return self.hessian(self._results.params)        
+        return self.hessian(self._results.params)
 
     # the following could be moved to results
     @cache_readonly
@@ -617,7 +619,7 @@ class GenericLikelihoodModel(LikelihoodModel):
 ##        self.jacv = jacv = self.jac(self._results.params)
         jacv = self.jacv
         return np.linalg.inv(np.dot(jacv.T, jacv))
-    
+
     @cache_readonly
     def covjhj(self):
         jacv = self.jacv
@@ -626,11 +628,11 @@ class GenericLikelihoodModel(LikelihoodModel):
 ##        self.hessinv = hessinv
         hessinv = self._results.cov_params()
         return np.dot(hessinv, np.dot(np.dot(jacv.T, jacv), hessinv))
-    
+
     @cache_readonly
     def bsejhj(self):
         return np.sqrt(np.diag(self.covjhj))
-    
+
     @cache_readonly
     def bsejac(self):
         return np.sqrt(np.diag(self.covjac))
@@ -651,7 +653,7 @@ class Results(object):
         """
         self.__dict__.update(kwd)
         self.initialize(model, params, **kwd)
-    
+
     def initialize(self, model, params, **kwd):
         self.params = params
         self.model = model
@@ -659,8 +661,8 @@ class Results(object):
 
 class LikelihoodModelResults(Results):
     def __init__(self, model, params, normalized_cov_params=None, scale=1.):
-        """ 
-        Class to contain results from likelihood models 
+        """
+        Class to contain results from likelihood models
 
         Parameters
         -----------
@@ -679,7 +681,7 @@ class LikelihoodModelResults(Results):
         **Attributes**
         mle_retvals : dict
             Contains the values returned from the chosen optimization method if
-            full_output is True during the fit.  Available only if the model 
+            full_output is True during the fit.  Available only if the model
             is fit by maximum likelihood.  See notes below for the output from
             the different methods.
         mle_settings : dict
@@ -693,7 +695,7 @@ class LikelihoodModelResults(Results):
         scale : float
             The scaling factor of the model given during instantiation.
 
-        
+
         Notes
         --------
         The covariance of params is given by scale times normalized_cov_params.
@@ -718,7 +720,7 @@ class LikelihoodModelResults(Results):
                     List of solutions at each iteration.
             'nm'
                 fopt : float
-                    The value of the (negative) loglikelihood at its 
+                    The value of the (negative) loglikelihood at its
                     minimum.
                 iterations : int
                     Number of iterations performed.
@@ -743,7 +745,7 @@ class LikelihoodModelResults(Results):
                 gcalls : int
                     Number of calls to gradient/score.
                 warnflag : int
-                    1: Maximum number of iterations exceeded. 2: Gradient 
+                    1: Maximum number of iterations exceeded. 2: Gradient
                     and/or function calls are not changing.
                 converged : bool
                     True: converged.  False: did not converge.
@@ -801,12 +803,12 @@ class LikelihoodModelResults(Results):
 
     def normalized_cov_params(self):
         raise NotImplementedError
-    
+
     #JP: add methods that are valid generically higher up in class hierarchy
     @cache_readonly
     def llf(self):
         return self.model.loglike(self.params)
-    
+
     @cache_readonly
     def bse(self):
         return np.sqrt(np.diag(self.cov_params()))
@@ -839,12 +841,12 @@ class LikelihoodModelResults(Results):
         >>> import numpy as np
         >>> results.t(np.array([1,2,4]))
         array([-1.06951632, -4.13642736, -0.22605114])
-        
+
         """
 
         if self.normalized_cov_params is None:
-            raise ValueError, 'need covariance of parameters for computing T\
- statistics'
+            raise ValueError('need covariance of parameters for computing T '
+                             'statistics')
 
         if column is None:
             column = range(self.params.shape[0])
@@ -871,14 +873,14 @@ class LikelihoodModelResults(Results):
     def cov_params(self, r_matrix=None, column=None, scale=None, other=None):
         """
         Returns the variance/covariance matrix.
-        
+
         The variance/covariance matrix can be of a linear contrast
         of the estimates of params or all params multiplied by scale which
         will usually be an estimate of sigma^2.  Scale is assumed to be
         a scalar.
 
         Parameters
-        -----------
+        ----------
         r_matrix : array-like
             Can be 1d, or 2d.  Can be used alone or with other.
         column :  array-like, optional
@@ -905,21 +907,21 @@ class LikelihoodModelResults(Results):
         (scale) * r_matrix (X.T X)^(-1) other.T
 
         If column is specified returns
-        (scale) * (X.T X)^(-1)[column,column] if column is 0d 
-        
+        (scale) * (X.T X)^(-1)[column,column] if column is 0d
+
         OR
 
         (scale) * (X.T X)^(-1)[column][:,column] if column is 1d
 
         """
         if self.normalized_cov_params is None:
-            raise ValueError, 'need covariance of parameters for computing \
-(unnormalized) covariances'
+            raise ValueError('need covariance of parameters for computing '
+                             '(unnormalized) covariances')
         if column is not None and (r_matrix is not None or other is not None):
-            raise ValueError, 'Column should be specified without other \
-arguments.'
+            raise ValueError('Column should be specified without other '
+                             'arguments.')
         if other is not None and r_matrix is None:
-            raise ValueError, 'other can only be specified with r_matrix'
+            raise ValueError('other can only be specified with r_matrix')
         if scale is None:
             scale = self.scale
         if column is not None:
@@ -931,12 +933,12 @@ arguments.'
         elif r_matrix is not None:
             r_matrix = np.asarray(r_matrix)
             if r_matrix.shape == ():
-                raise ValueError, "r_matrix should be 1d or 2d"
+                raise ValueError("r_matrix should be 1d or 2d")
             if other is None:
                 other = r_matrix
             else:
                 other = np.asarray(other)
-            tmp = np.dot(r_matrix, np.dot(self.normalized_cov_params, 
+            tmp = np.dot(r_matrix, np.dot(self.normalized_cov_params,
                 np.transpose(other)))
             return tmp * scale
         if r_matrix is None and column is None:
@@ -948,7 +950,7 @@ arguments.'
         Compute a tcontrast/t-test for a row vector array of the form Rb = q
 
         where R is r_matrix, b = the parameter vector, and q is q_matrix.
-        
+
         Parameters
         ----------
         r_matrix : array-like
@@ -958,7 +960,7 @@ arguments.'
         scale : float, optional
             An optional `scale` to use.  Default is the scale specified
             by the model fit.
-            
+
         Examples
         --------
         >>> import numpy as np
@@ -976,7 +978,8 @@ arguments.'
 
         >>>T_Test = results.t_test(r)
         >>>print T_test
-        <T contrast: effect=-1829.2025687192481, sd=455.39079425193762, t=-4.0167754636411717, p=0.0015163772380899498, df_denom=9>
+        <T contrast: effect=-1829.2025687192481, sd=455.39079425193762,
+        t=-4.0167754636411717, p=0.0015163772380899498, df_denom=9>
         >>> T_test.effect
         -1829.2025687192481
         >>> T_test.sd
@@ -990,15 +993,15 @@ arguments.'
         ---------
         t : method to get simpler t values
         f_test : for f tests
-        
+
         """
         r_matrix = np.atleast_2d(np.asarray(r_matrix))
         num_ttests = r_matrix.shape[0]
         num_params = r_matrix.shape[1]
 
         if self.normalized_cov_params is None:
-            raise ValueError, 'Need covariance of parameters for computing \
-T statistics'
+            raise ValueError('Need covariance of parameters for computing '
+                             'T statistics')
         if num_params != self.params.shape[0]:
             raise ValueError, 'r_matrix and params are not aligned'
         if q_matrix is None:
@@ -1007,8 +1010,8 @@ T statistics'
             q_matrix = np.asarray(q_matrix)
         if q_matrix.size > 1:
             if q_matrix.shape[0] != num_ttests:
-                raise ValueError("r_matrix and q_matrix must have the same \
-number of rows")
+                raise ValueError("r_matrix and q_matrix must have the same "
+                                 "number of rows")
 
         _t = _sd = None
 
@@ -1018,10 +1021,10 @@ number of rows")
         else:
             _sd = np.sqrt(self.cov_params(r_matrix=r_matrix))
         _t = (_effect-q_matrix) * recipr(_sd)
-        return ContrastResults(effect=_effect, t=_t, sd=_sd, 
+        return ContrastResults(effect=_effect, t=_t, sd=_sd,
                 df_denom=self.model.df_resid)
 
-#TODO: untested for GLMs?  
+#TODO: untested for GLMs?
     def f_test(self, r_matrix, q_matrix=None, scale=1.0, invcov=None):
         """
         Compute an Fcontrast/F-test for a contrast matrix.
@@ -1035,11 +1038,11 @@ number of rows")
         where the rank of the covariance of the noise is not full.
 
         Parameters
-        -----------
+        ----------
         r_matrix : array-like
             q x p array where q is the number of restrictions to test and
             p is the number of regressors in the full model fit.
-            If q is 1 then f_test(r_matrix).fvalue is equivalent to 
+            If q is 1 then f_test(r_matrix).fvalue is equivalent to
             the square of t_test(r_matrix).t
         q_matrix : array-like
             q x 1 array, that represents the sum of each linear restriction.
@@ -1047,7 +1050,7 @@ number of rows")
         scale : float, optional
             Default is 1.0 for no scaling.
         invcov : array-like, optional
-            A qxq matrix to specify an inverse covariance 
+            A qxq matrix to specify an inverse covariance
             matrix based on a restrictions matrix.
 
         Examples
@@ -1059,13 +1062,13 @@ number of rows")
         >>> results = sm.OLS(data.endog, data.exog).fit()
         >>> A = np.identity(len(results.params))
         >>> A = A[:-1,:]
-        
+
         This tests that each coefficient is jointly statistically
         significantly different from zero.
 
         >>> print results.f_test(A)
         <F contrast: F=330.28533923463488, p=4.98403052872e-10, df_denom=9, df_num=6>
-        
+
         Compare this to
 
         >>> results.F
@@ -1089,10 +1092,11 @@ number of rows")
 
         """
         r_matrix = np.asarray(r_matrix)
-        r_matrix = np.atleast_2d(r_matrix) 
-        
+        r_matrix = np.atleast_2d(r_matrix)
+
         if self.normalized_cov_params is None:
-            raise ValueError, 'need covariance of parameters for computing F statistics'
+            raise ValueError('need covariance of parameters for computing '
+                             'F statistics')
 
         cparams = np.dot(r_matrix, self.params[:,None])
         J = float(r_matrix.shape[0]) # number of restrictions
@@ -1103,13 +1107,13 @@ number of rows")
         if q_matrix.ndim == 1:
             q_matrix = q_matrix[:,None]
             if q_matrix.shape[0] != J:
-                raise ValueError("r_matrix and q_matrix must have the same \
-number of rows")
+                raise ValueError("r_matrix and q_matrix must have the same "
+                                 "number of rows")
         Rbq = cparams - q_matrix
         if invcov is None:
             invcov = np.linalg.inv(self.cov_params(r_matrix=r_matrix))
         F = np.dot(np.dot(Rbq.T,invcov),Rbq)/J
-        return ContrastResults(F=F, df_denom=self.model.df_resid, 
+        return ContrastResults(F=F, df_denom=self.model.df_resid,
                     df_num=invcov.shape[0])
 
     def conf_int(self, alpha=.05, cols=None, method='default'):
@@ -1127,18 +1131,18 @@ number of rows")
             Not Implemented Yet
             Method to estimate the confidence_interval.
             "Default" : uses self.bse which is based on inverse Hessian for MLE
-            "jhj" : 
-            "jac" : 
+            "jhj" :
+            "jac" :
             "boot-bse"
             "boot_quant"
-            "profile" 
-            
-                
+            "profile"
+
+
         Returns
         --------
         conf_int : array
             Each row contains [lower, upper] confidence interval
-        
+
         Examples
         --------
         >>> import scikits.statsmodels.api as sm
@@ -1160,9 +1164,9 @@ number of rows")
 
         Notes
         -----
-        The confidence interval is based on Student's t distribution for all 
+        The confidence interval is based on Student's t distribution for all
         models except RLM and GLM, which uses the standard normal distribution.
-        
+
         """
         bse = self.bse
         #TODO: simplify structure, DRY
@@ -1192,9 +1196,9 @@ number of rows")
             upper = self.params[cols] + dist.ppf(1-alpha/2) * bse[cols]
         return np.asarray(zip(lower,upper))
 
-    
-class ResultMixin(object): 
-    
+
+class ResultMixin(object):
+
     @cache_readonly
     def df_modelwc(self):
         #collect different ways of defining the number of parameters, used for aic, bic
@@ -1206,34 +1210,34 @@ class ResultMixin(object):
             return self.df_model + hasconst
         else:
             return self.params.size
-        
+
 
     @cache_readonly
-    def aic(self): 
+    def aic(self):
         return -2 * self.llf + 2 * (self.df_modelwc)
 
     @cache_readonly
     def bic(self):
         return -2 * self.llf + np.log(self.nobs) * (self.df_modelwc)
-    
+
     @cache_readonly
     def jacv(self):
         '''cached Jacobian of log-likelihood
         '''
         return self.model.jac(self.params)
-        
+
     @cache_readonly
     def hessv(self):
         '''cached Hessian of log-likelihood
         '''
-        return self.model.hessian(self.params)    
-    
+        return self.model.hessian(self.params)
+
     @cache_readonly
     def covjac(self):
         '''
-        covariance of parameters based on outer product of jacobian of 
+        covariance of parameters based on outer product of jacobian of
         log-likelihood
-        
+
         '''
 ##        if not hasattr(self, '_results'):
 ##            raise ValueError('need to call fit first')
@@ -1241,13 +1245,13 @@ class ResultMixin(object):
 ##        self.jacv = jacv = self.jac(self._results.params)
         jacv = self.jacv
         return np.linalg.inv(np.dot(jacv.T, jacv))
-    
+
     @cache_readonly
     def covjhj(self):
         '''covariance of parameters based on HJJH
-        
+
         dot product of Hessian, Jacobian, Jacobian, Hessian of likelihood
-        
+
         name should be covhjh
         '''
         jacv = self.jacv
@@ -1256,26 +1260,26 @@ class ResultMixin(object):
 ##        self.hessinv = hessinv
         hessinv = self.cov_params()
         return np.dot(hessinv, np.dot(np.dot(jacv.T, jacv), hessinv))
-    
+
     @cache_readonly
     def bsejhj(self):
         '''standard deviation of parameter estimates based on covHJH
         '''
         return np.sqrt(np.diag(self.covjhj))
-    
+
     @cache_readonly
     def bsejac(self):
         '''standard deviation of parameter estimates based on covjac
         '''
         return np.sqrt(np.diag(self.covjac))
-    
+
     def bootstrap(self, nrep=100, method='nm', disp=0, store=1):
         '''simple bootstrap to get mean and variance of estimator
-        
+
         see notes
-        
-        Parameter
-        ---------
+
+        Parameters
+        ----------
         nrep : int
             number of bootstrap replications
         method : str
@@ -1285,25 +1289,25 @@ class ResultMixin(object):
         store : bool
             If true, then parameter estimates for all bootstrap iterations
             are attached in self.bootstrap_results
-            
+
         Returns
         -------
         mean : array
             mean of parameter estimates over bootstrap replications
-        std : array 
+        std : array
             standard deviation of parameter estimates over bootstrap replications
-        
+
         Notes
         -----
         This was mainly written to compare estimators of the standard errors
         of the parameter estimates.
         It uses independent random sampling from the original endog and exog, and
-        therefore is only correct if observations are independently distributed. 
-        
+        therefore is only correct if observations are independently distributed.
+
         This will be moved to apply only to models with independently distributed
         observations.
-        
-        
+
+
         '''
         results = []
         print self.model.__class__
@@ -1312,46 +1316,46 @@ class ResultMixin(object):
             rvsind = np.random.randint(self.nobs-1, size=self.nobs )
             #this needs to set startparam and get other defining attributes
             #need a clone method on model
-            fitmod = self.model.__class__(self.endog[rvsind], 
+            fitmod = self.model.__class__(self.endog[rvsind],
                                           self.exog[rvsind,:]
                                           )
             if hascloneattr:
                 for attr in self.model.cloneattr:
                     setattr(fitmod, attr, getattr(self.model, attr))
-                
+
             fitres = fitmod.fit(method=method, disp=disp)
             results.append(fitres.params)
         results = np.array(results)
         if store:
             self.bootstrap_results = results
         return results.mean(0), results.std(0), results
-    
+
     def get_nlfun(self, fun):
         #I think this is supposed to get the delta method that is currently
         #in miscmodels count (as part of Poisson example)
         pass
-    
-    
+
+
 class GenericLikelihoodModelResults(LikelihoodModelResults, ResultMixin):
     """
     A results class for the discrete dependent variable models.
-    
-    ..Warning : 
+
+    ..Warning :
     The following description has not been updated to this version/class.
     Where are AIC, BIC, ....? docstring looks like copy from discretemod
 
     Parameters
     ----------
     model : A DiscreteModel instance
-    mlefit : instance of LikelihoodResults 
+    mlefit : instance of LikelihoodResults
         This contains the numerical optimization results as returned by
-        LikelihoodModel.fit(), in a superclass of GnericLikelihoodModels 
+        LikelihoodModel.fit(), in a superclass of GnericLikelihoodModels
 
 
     Returns
     -------
     *Attributes*
-    
+
     Warning most of these are not available yet
 
     aic : float
@@ -1369,28 +1373,28 @@ class GenericLikelihoodModelResults(LikelihoodModelResults, ResultMixin):
     fitted_values : array
         Linear predictor XB.
     llf : float
-        Value of the loglikelihood 
+        Value of the loglikelihood
     llnull : float
         Value of the constant-only loglikelihood
     llr : float
         Likelihood ratio chi-squared statistic; -2*(`llnull` - `llf`)
     llr_pvalue : float
-        The chi-squared probability of getting a log-likelihood ratio 
+        The chi-squared probability of getting a log-likelihood ratio
         statistic greater than llr.  llr has a chi-squared distribution
         with degrees of freedom `df_model`.
     prsquared : float
         McFadden's pseudo-R-squared. 1 - (`llf`/`llnull`)
-    
+
     Methods
     -------
     margeff
         Get marginal effects of the fitted model.
     conf_int
-    
+
     """
 
     def __init__(self, model, mlefit):
-#        super(DiscreteResults, self).__init__(model, params, 
+#        super(DiscreteResults, self).__init__(model, params,
 #                np.linalg.inv(-hessian), scale=1.)
         self.model = model
         #self.df_model = model.df_model
@@ -1400,7 +1404,7 @@ class GenericLikelihoodModelResults(LikelihoodModelResults, ResultMixin):
         self.nobs = model.nobs
         self._cache = resettable_cache()
         self.__dict__.update(mlefit.__dict__)
-        
-    
+
+
 
 

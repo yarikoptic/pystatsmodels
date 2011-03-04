@@ -48,24 +48,24 @@ def kalmanfilter(F, A, H, Q, R, y, X, xi10, ntrain, history=False):
     """
     Returns the negative log-likelihood of y conditional on the information set
 
-    Assumes that the initial state and all innovations are multivariate 
+    Assumes that the initial state and all innovations are multivariate
     Gaussian.
 
     Parameters
     -----------
     F : array-like
-        The (r x r) array holding the transition matrix for the hidden state. 
+        The (r x r) array holding the transition matrix for the hidden state.
     A : array-like
-        The (nobs x k) array relating the predetermined variables to the 
+        The (nobs x k) array relating the predetermined variables to the
         observed data.
     H : array-like
-        The (nobs x r) array relating the hidden state vector to the 
+        The (nobs x r) array relating the hidden state vector to the
         observed data.
     Q : array-like
-        (r x r) variance/covariance matrix on the error term in the hidden 
+        (r x r) variance/covariance matrix on the error term in the hidden
         state transition.
     R : array-like
-        (nobs x nobs) variance/covariance of the noise in the observation 
+        (nobs x nobs) variance/covariance of the noise in the observation
         equation.
     y : array-like
         The (nobs x 1) array holding the observed data.
@@ -80,11 +80,11 @@ def kalmanfilter(F, A, H, Q, R, y, X, xi10, ntrain, history=False):
 
     Returns
     -------
-    likelihood 
+    likelihood
         The negative of the log likelihood
     history or priors, history of posterior
         If history is True.
-    
+
     Notes
     -----
     No input checking is done.
@@ -107,7 +107,7 @@ def kalmanfilter(F, A, H, Q, R, y, X, xi10, ntrain, history=False):
     Q = np.asarray(Q)
     r = xi10.shape[0]
 # Eq. 12.2.21, other version says P0 = Q
-#    p10 = np.dot(np.linalg.inv(np.eye(r**2)-np.kron(F,F)),Q.ravel('F')) 
+#    p10 = np.dot(np.linalg.inv(np.eye(r**2)-np.kron(F,F)),Q.ravel('F'))
 #    p10 = np.reshape(P0, (r,r), order='F')
 # Assume a fixed, known intial point and set P0 = Q
 #TODO: this looks *slightly * different than Durbin-Koopman exact likelihood
@@ -149,7 +149,7 @@ def kalmanfilter(F, A, H, Q, R, y, X, xi10, ntrain, history=False):
         # 13.2.21 Update the MSE of the forecast
         p10 = chain_dot(F,p11,F.T) + Q
     if not history:
-        return -loglikelihood 
+        return -loglikelihood
     else:
         return -loglikelihood, np.asarray(state_vector[:-1])
 
@@ -161,9 +161,9 @@ def kalmanfilter(F, A, H, Q, R, y, X, xi10, ntrain, history=False):
 #
 #        Notes
 #        -----
-#        Computes the exact likelihood for an ARMA process by modifying the 
-#        conditional sum of squares likelihood as suggested by Shephard (1997) 
-#        "The relationship between the conditional sum of squares and the exact 
+#        Computes the exact likelihood for an ARMA process by modifying the
+#        conditional sum of squares likelihood as suggested by Shephard (1997)
+#        "The relationship between the conditional sum of squares and the exact
 #        likelihood for autoregressive moving average models."
 #        """
 #        p = self.p
@@ -179,7 +179,7 @@ def kalmanfilter(F, A, H, Q, R, y, X, xi10, ntrain, history=False):
 #            y -= dot(self.exog, newparams[:k])
 #        if p != 0:
 #            arcoefs = newparams[k:k+p][::-1]
-#            T = KalmanFilter.T(arcoefs) 
+#            T = KalmanFilter.T(arcoefs)
 #        else:
 #            arcoefs = 0
 #        if q != 0:
@@ -195,12 +195,12 @@ def kalmanfilter(F, A, H, Q, R, y, X, xi10, ntrain, history=False):
 #            rerrors.append(-sum(macoefs*rerrors[i-q:i]))
 #        errors = np.asarray(errors)
 #        rerrors = np.asarray(rerrors)
-#        
+#
 #        # compute bayesian expected mean and variance of initial errors
 #        one_sumrt2 = 1 + np.sum(rerrors**2)
 #        sum_errors2 = np.sum(errors**2)
 #        mup = -np.sum(errors * rerrors)/one_sumrt2
-# 
+#
 #        # concentrating out the ML estimator of "true" sigma2 gives
 #        sigma2 = 1./(2*nobs)  * (sum_errors2 - mup**2*(one_sumrt2))
 #
@@ -271,10 +271,10 @@ class StateSpaceModel(object):
 #        self.F = F
 #        self.Hmat =
 #        if n == 1:
-#            F = 
+#            F =
 
-    def _updateloglike(self, params, xi10, ntrain, penalty, upperbounds, lowerbounds, 
-            F,A,H,Q,R, history):  
+    def _updateloglike(self, params, xi10, ntrain, penalty, upperbounds, lowerbounds,
+            F,A,H,Q,R, history):
         """
         """
         paramsorig = params
@@ -313,7 +313,7 @@ class StateSpaceModel(object):
         if penalty:
             loglike += penalty * np.sum((paramsorig-params)**2)
         return loglike
-        
+
 #        r = self.r
 #        n = self.n
 #        F = np.diagonal(np.ones(r-1), k=-1) # think this will be wrong for VAR
@@ -332,9 +332,9 @@ class StateSpaceModel(object):
 #        ntrain = self.ntrain
  #       loglike = kalmanfilter(F,H,y,xi10,Q,ntrain)
 
-    def fit_kalman(self, start_params, xi10, ntrain=1, F=None, A=None, H=None, 
-            Q=None, 
-            R=None, method="bfgs", penalty=True, upperbounds=None, 
+    def fit_kalman(self, start_params, xi10, ntrain=1, F=None, A=None, H=None,
+            Q=None,
+            R=None, method="bfgs", penalty=True, upperbounds=None,
             lowerbounds=None):
         """
         Parameters
@@ -350,17 +350,17 @@ class StateSpaceModel(object):
         F,A,H,Q,R : functions or array-like, optional
             If functions, they should take start_params (or the current
             value of params during iteration and return the F,A,H,Q,R matrices).
-            See notes.  If they are constant then can be given as array-like 
+            See notes.  If they are constant then can be given as array-like
             objects.  If not included in the state-space representation then
             can be left as None.  See example in class docstring.
         penalty : bool,
             Whether or not to include a penalty for solutions that violate
             the bounds given by `lowerbounds` and `upperbounds`.
         lowerbounds : array-like
-            Lower bounds on the parameter solutions.  Expected to be in the 
+            Lower bounds on the parameter solutions.  Expected to be in the
             same order as `start_params`.
         upperbounds : array-like
-            Upper bounds on the parameter solutions.  Expected to be in the 
+            Upper bounds on the parameter solutions.  Expected to be in the
             same order as `start_params`
         """
         y = self.endog
@@ -369,9 +369,9 @@ class StateSpaceModel(object):
         params = start_params
         if method.lower() == 'bfgs':
             (params, llf, score, cov_params, func_calls, grad_calls,
-            warnflag) = optimize.fmin_bfgs(_updateloglike, params, 
+            warnflag) = optimize.fmin_bfgs(_updateloglike, params,
                     args = (xi10, ntrain, penalty, upperbounds, lowerbounds,
-                        F,A,H,Q,R, False), gtol= 1e-8, epsilon=1e-5, 
+                        F,A,H,Q,R, False), gtol= 1e-8, epsilon=1e-5,
                         full_output=1)
             #TODO: provide more options to user for optimize
         # Getting history would require one more call to _updatelikelihood
@@ -493,7 +493,7 @@ class KalmanFilter(object):
 
         Notes
         -----
-        Currently only returns a 1 x r vector [1,0,0,...0].  Will need to 
+        Currently only returns a 1 x r vector [1,0,0,...0].  Will need to
         be generalized when the Kalman Filter becomes more flexible.
         """
         arr = zeros((1,r))
@@ -509,15 +509,15 @@ class KalmanFilter(object):
         ----------
         params : array
             The coefficients of the ARMA model, assumed to be in the order of
-            trend variables and `k` exogenous coefficients, the `p` AR 
-            coefficients, then the `q MA coefficients.
+            trend variables and `k` exogenous coefficients, the `p` AR
+            coefficients, then the `q` MA coefficients.
         arma_model : `scikits.statsmodels.tsa.arima.ARMA` instance
             A reference to the ARMA model instance.
 
         Notes
         -----
-        This works for both real valued and complex valued parameters. The 
-        complex values being used to compute the numerical derivative. If 
+        This works for both real valued and complex valued parameters. The
+        complex values being used to compute the numerical derivative. If
         available will use a Cython version of the Kalman Filter.
         """
         #TODO: see section 3.4.6 in Harvey for computing the derivatives in the
@@ -530,27 +530,27 @@ class KalmanFilter(object):
         p = arma_model.p
         q = arma_model.q
         r = arma_model.r
-        
+
         if arma_model.transparams:
             newparams = arma_model._transparams(params)
         else:
             newparams = params  # don't need a copy if not modified.
-        
+
         if k > 0:
             y -= dot(arma_model.exog, newparams[:k])
 
-        # system matrices 
+        # system matrices
         Z_mat = KalmanFilter.Z(r)
         m = Z_mat.shape[1] # r
         R_mat = KalmanFilter.R(newparams, r, k, q, p)
         T_mat = KalmanFilter.T(newparams, r, k, p)
-        
+
         if fast_kalman:
             if issubdtype(paramsdtype, float):
-                loglike, sigma2 =  kalman_loglike.kalman_loglike_double(y, k, 
+                loglike, sigma2 =  kalman_loglike.kalman_loglike_double(y, k,
                                         p, q, r, int(nobs), Z_mat, R_mat, T_mat)
             elif issubdtype(paramsdtype, complex):
-                loglike, sigma2 =  kalman_loglike.kalman_loglike_complex(y, k, 
+                loglike, sigma2 =  kalman_loglike.kalman_loglike_complex(y, k,
                                         p, q, r, int(nobs), Z_mat, R_mat, T_mat)
             else:
                 raise TypeError("This dtype %s is not supported\n\
@@ -565,7 +565,7 @@ Please files a bug report." % paramsdtype)
            # w/ kappa some large value say 1e7, but DK recommends not doing this
             # for a diffuse prior
             # Note that we enforce stationarity
-            Q_0 = Q_0.reshape(r,r,order='F') 
+            Q_0 = Q_0.reshape(r,r,order='F')
             P = Q_0
             sigma2 = 0
             loglikelihood = 0
@@ -583,7 +583,7 @@ Please files a bug report." % paramsdtype)
                 F_mat = dot(dot(Z_mat, P), Z_mat.T)
                 F[i] = F_mat
                 Finv = 1./F_mat # always scalar for univariate series
-                K = dot(dot(dot(T_mat,P),Z_mat.T),Finv) # Kalman Gain Matrix 
+                K = dot(dot(dot(T_mat,P),Z_mat.T),Finv) # Kalman Gain Matrix
                 # update state
                 alpha = dot(T_mat, alpha) + dot(K,v_mat)
                 L = T_mat - dot(K,Z_mat)
@@ -626,14 +626,14 @@ if __name__ == "__main__":
     # might need to add an axis
     r = len(rho)
     x = np.ones_like(y)
-    
-    # For now, assume that F,Q,A,H, and R are known 
+
+    # For now, assume that F,Q,A,H, and R are known
     F = np.array([[0,0],[1,0]])
     Q = np.array([[1,0],[0,0]])
     A = np.array([mu])
     H = rho[:,None]
     R = 0
-    
+
     # remember that the goal is to solve recursively for the
     # state vector, xi, given the data, y (in this case)
     # we can also get a MSE matrix, P, associated with *each* observation
@@ -641,14 +641,14 @@ if __name__ == "__main__":
     # given that our errors are ~ NID(0,variance)
     # the starting E[e(1),e(0)] = [0,0]
     xi0 = np.array([[0],[0]])
-    # with variance = 1 we know that 
+    # with variance = 1 we know that
 #    P0 = np.eye(2)  # really P_{1|0}
 
 # Using the note below
-    P0 = np.dot(np.linalg.inv(np.eye(r**2)-np.kron(F,F)),Q.ravel('F')) 
+    P0 = np.dot(np.linalg.inv(np.eye(r**2)-np.kron(F,F)),Q.ravel('F'))
     P0 = np.reshape(P0, (r,r), order='F')
 
-    # more generally, if the eigenvalues for F are in the unit circle 
+    # more generally, if the eigenvalues for F are in the unit circle
     # (watch out for rounding error in LAPACK!) then
     # the DGP of the state vector is var/cov stationary, we know that
     # xi0 = 0
@@ -658,7 +658,7 @@ if __name__ == "__main__":
     # if you really want a "2-d" array
     # a fortran (row-) ordered raveled array
     # If instead, some eigenvalues are on or outside the unit circle
-    # xi0 can be replaced with a best guess and then 
+    # xi0 can be replaced with a best guess and then
     # P0 is a positive definite matrix repr the confidence in the guess
     # larger diagonal elements signify less confidence
 
@@ -718,7 +718,7 @@ if __name__ == "__main__":
     xihistory = np.zeros((2,nobs))
     for i in range(1,nobs):
         xihistory[:,i] = np.dot(F,xihistory[:,i-1]) + \
-                np.dot(cholQ,np.random.randn(2,1)).squeeze() 
+                np.dot(cholQ,np.random.randn(2,1)).squeeze()
                 # this makes an ARMA process?
                 # check notes, do the math
     y = np.dot(H.T, xihistory)
@@ -731,7 +731,7 @@ if __name__ == "__main__":
     xi10 = xihistory[:,0]
     ntrain = 1
     bounds = zip(lowerbounds,upperbounds) # if you use fmin_l_bfgs_b
-#    results = optimize.fmin_bfgs(updatematrices, params, 
+#    results = optimize.fmin_bfgs(updatematrices, params,
 #        args=(y,xi10,ntrain,penalty,upperbounds,lowerbounds),
 #        gtol = 1e-8, epsilon=1e-10)
 #    array([ 0.83111567,  1.2695249 ,  0.61436685])
@@ -743,7 +743,7 @@ if __name__ == "__main__":
         return np.dot(cholQ,cholQ.T)
     H = np.ones((2,1))
 #    ssm_model = StateSpaceModel(y)  # need to pass in Xi10!
-#    ssm_model.fit_kalman(start_params=params, xi10=xi10, F=F, Q=Q, H=H, 
+#    ssm_model.fit_kalman(start_params=params, xi10=xi10, F=F, Q=Q, H=H,
 #            upperbounds=upperbounds, lowerbounds=lowerbounds)
 # why does the above take 3 times as many iterations than direct max?
 
@@ -796,7 +796,7 @@ if __name__ == "__main__":
     seatbelt = [map(float,_.split()) for _ in seatbelt[2:]]
     sb_ssm = StateSpaceModel(seatbelt)
     s = 12 # monthly data
-# s p. 
+# s p.
     H = np.zeros((s+1,1)) # Z in DK, H' in Hamilton
     H[::2] = 1.
     lambdaj = np.r_[1:6:6j]
