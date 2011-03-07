@@ -12,7 +12,7 @@ import scikits.statsmodels.api as sm
 
 def atleast_2dcol(x):
     ''' convert array_like to 2d from 1d or 0d
-    
+
     not tested because not used
     '''
     x = np.asarray(x)
@@ -21,16 +21,16 @@ def atleast_2dcol(x):
     elif (x.ndim == 0):
         x = np.atleast_2d(x)
     elif (x.ndim > 0):
-        raise ValueError, 'too many dimensions'        
+        raise ValueError('too many dimensions')
     return x
 
 
 def wls_prediction_std(res, exog=None, weights=None, alpha=0.05):
     '''calculate standard deviation and confidence interval for prediction
-    
+
     applies to WLS and OLS, not to general GLS,
     that is independently but not identically distributed observations
-    
+
     Parameters
     ----------
     res : regression result instance
@@ -48,8 +48,8 @@ def wls_prediction_std(res, exog=None, weights=None, alpha=0.05):
         standard error of prediction
         same length as rows of exog
     interval_l, interval_u : array_like
-        lower und upper confidence bounds 
-    
+        lower und upper confidence bounds
+
     Notes
     -----
     The result instance needs to have at least the following
@@ -59,19 +59,19 @@ def wls_prediction_std(res, exog=None, weights=None, alpha=0.05):
 
     If exog is 1d, then it is interpreted as one observation,
     i.e. a row vector.
-    
+
     testing status: not compared with other packages
-    
+
     References
     ----------
-    
+
     Greene p.111 for OLS, extended to WLS by analogy
-  
+
     '''
-    # work around current bug: 
+    # work around current bug:
     #    fit doesn't attach results to model, predict broken
     #res.model.results
-    
+
     covb = res.cov_params()
     if exog is None:
         exog = res.model.exog
@@ -79,13 +79,13 @@ def wls_prediction_std(res, exog=None, weights=None, alpha=0.05):
     else:
         exog = np.atleast_2d(exog)
         if covb.shape[1] != exog.shape[1]:
-            raise ValueError, 'wrong shape of exog'
+            raise ValueError('wrong shape of exog')
         predicted = res.model.predict(exog)
 
     if weights is None:
         weights = res.model.weights
-    
-        
+
+
     # full covariance:
     #predvar = res3.mse_resid + np.diag(np.dot(X2,np.dot(covb,X2.T)))
     # predication variance only
@@ -111,20 +111,20 @@ if __name__ == '__main__':
     sig = 0.5
     y2 = y_true2 + sig*w* np.random.normal(size=nsample)
     X2 = X[:,[0,2]]
-    
+
     # estimate OLS, WLS, (OLS not used in these tests)
     res2 = sm.OLS(y2, X2).fit()
     res3 = sm.WLS(y2, X2, 1./w).fit()
-    
+
     #direct calculation
     covb = res3.cov_params()
     predvar = res3.mse_resid*w + (X2 * np.dot(covb,X2.T).T).sum(1)
     predstd = np.sqrt(predvar)
-    
+
 
     prstd, iv_l, iv_u = wls_prediction_std(res3)
     np.testing.assert_almost_equal(predstd, prstd, 15)
-    
+
     # testing shapes of exog
     prstd, iv_l, iv_u = wls_prediction_std(res3, X2[-1:,:], weights=3.)
     np.testing.assert_equal( prstd[-1], prstd)
