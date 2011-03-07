@@ -34,10 +34,10 @@ import numpy as np
 from scipy.linalg import norm, toeplitz, lstsq, calc_lwork
 from scipy import stats
 from scipy.stats.stats import ss
-from scikits.statsmodels.base.model import (LikelihoodModel, 
+from scikits.statsmodels.base.model import (LikelihoodModel,
         LikelihoodModelResults)
 from scikits.statsmodels.tools.tools import add_constant, rank, recipr
-from scikits.statsmodels.tools.decorators import (resettable_cache, 
+from scikits.statsmodels.tools.decorators import (resettable_cache,
         cache_readonly, cache_writable)
 
 class GLS(LikelihoodModel):
@@ -148,12 +148,12 @@ class GLS(LikelihoodModel):
             nobs = int(endog.shape[0])
             if self.sigma.ndim == 1 or np.squeeze(self.sigma).ndim == 1:
                 if self.sigma.shape[0] != nobs:
-                    raise ValueError, "sigma is not the correct dimension.  \
-Should be of length %s, if sigma is a 1d array" % nobs
+                    raise ValueError("sigma is not the correct dimension.  \
+Should be of length %s, if sigma is a 1d array" % nobs)
             elif self.sigma.shape[0] != nobs and \
                     self.sigma.shape[1] != nobs:
-                raise ValueError, "expected an %s x %s array for sigma" % \
-                        (nobs, nobs)
+                raise ValueError("expected an %s x %s array for sigma" % \
+                        (nobs, nobs))
         if self.sigma is not None:
             nobs = int(endog.shape[0])
             if self.sigma.shape == ():
@@ -281,7 +281,7 @@ Should be of length %s, if sigma is a 1d array" % nobs
         #JP: this doesn't look correct for GLMAR
         #SS: it needs its own predict method
         if self._results is None and params is None:
-            raise ValueError, "If the model has not been fit, then you must specify the params argument."
+            raise ValueError("If the model has not been fit, then you must specify the params argument.")
         if self._results is not None:
             return np.dot(exog, self._results.params)
         else:
@@ -324,7 +324,7 @@ Should be of length %s, if sigma is a 1d array" % nobs
             llf -= .5*np.log(np.linalg.det(self.sigma))
             # with error covariance matrix
         return llf
-    
+
 
 
 class WLS(GLS):
@@ -592,7 +592,7 @@ class GLSAR(GLS):
         else:
             self.rho = np.squeeze(np.asarray(rho))
             if len(self.rho.shape) not in [0,1]:
-                raise ValueError, "AR parameters must be a scalar or a vector"
+                raise ValueError("AR parameters must be a scalar or a vector")
             if self.rho.shape == ():
                 self.rho.shape = (1,)
             self.order = self.rho.shape[0]
@@ -709,8 +709,7 @@ def yule_walker(X, order=1, method="unbiased", df=None, inv=False, demean=True):
 #http://www-stat.wharton.upenn.edu/~steele/Courses/956/ResourceDetails/YuleWalkerAndMore.htm
     method = str(method).lower()
     if method not in ["unbiased", "mle"]:
-        raise ValueError, "ACF estimation method must be 'unbiased' \
-        or 'MLE'"
+        raise ValueError("ACF estimation method must be 'unbiased' or 'MLE'")
     X = np.array(X)
     if demean:
         X -= X.mean()                  # automatically demean's X
@@ -721,7 +720,7 @@ def yule_walker(X, order=1, method="unbiased", df=None, inv=False, demean=True):
     else:
         denom = lambda k: n
     if X.ndim > 1 and X.shape[1] != 1:
-        raise ValueError, "expecting a vector to estimate AR parameters"
+        raise ValueError("expecting a vector to estimate AR parameters")
     r = np.zeros(order+1, np.float64)
     r[0] = (X**2).sum() / denom(0)
     for k in range(1,order+1):
@@ -1072,73 +1071,73 @@ class RegressionResults(LikelihoodModelResults):
         This method is untested
         """
         if not hasattr(self, 'resid'):
-            raise ValueError, 'need normalized residuals to estimate standard\
- deviation'
+            raise ValueError('need normalized residuals to estimate standard\
+ deviation')
         return self.wresid * recipr(np.sqrt(self.scale))
 
     def compare_f_test(self, restricted):
         '''use F test to test whether restricted model is correct
-        
+
         Parameters
         ----------
         restricted : Result instance
             The restricted model is assumed to be nested in the current model. The
             result instance of the restricted model is required to have two attributes,
             residual sum of squares, `ssr`, residual degrees of freedom, `df_resid`.
-        
+
         Returns
         -------
         f_value : float
-            test statistic, F distributed 
+            test statistic, F distributed
         p_value : float
             p-value of the test statistic
         df_diff : int
             degrees of freedom of the restriction, i.e. difference in df between models
-        
+
         Notes
         -----
-        See mailing list discussion October 17, 
-        
+        See mailing list discussion October 17,
+
         '''
         ssr_full = self.ssr
         ssr_restr = restricted.ssr
         df_full = self.df_resid
         df_restr = restricted.df_resid
-        
+
         df_diff = (df_restr - df_full)
         f_value = (ssr_restr - ssr_full) / df_diff / ssr_full * df_full
         p_value = stats.f.sf(f_value, df_diff, df_full)
         return f_value, p_value, df_diff
-       
+
     def compare_lr_test(self, restricted):
         '''use likelihood ratio test to test whether restricted model is correct
-        
+
         Parameters
         ----------
         restricted : Result instance
             The restricted model is assumed to be nested in the current model. The
             result instance of the restricted model is required to have two attributes,
             residual sum of squares, `ssr`, residual degrees of freedom, `df_resid`.
-        
+
         Returns
         -------
         lr_stat : float
-            likelihood ratio, chisquare distributed with df_diff degrees of freedom 
+            likelihood ratio, chisquare distributed with df_diff degrees of freedom
         p_value : float
             p-value of the test statistic
         df_diff : int
             degrees of freedom of the restriction, i.e. difference in df between models
-        
+
         Notes
         -----
-        See mailing list discussion October 17, 
+        See mailing list discussion October 17,
 
            \begin{align} D & = -2(\ln(\text{likelihood for null
             model}) - \ln(\text{likelihood for alternative model})) \\ & =
             -2\ln\left( \frac{\text{likelihood for null model}}{\text{likelihood
             for alternative model}} \right). \end{align}
-            
-        is distributed as chisquare with df equal to difference in number of parameters 
+
+        is distributed as chisquare with df equal to difference in number of parameters
         or equivalently difference in residual degrees of freedom
 
         TODO: put into separate function, needs tests
@@ -1147,7 +1146,7 @@ class RegressionResults(LikelihoodModelResults):
         llf_restr = restricted.llf
         df_full = self.df_resid
         df_restr = restricted.df_resid
-        
+
         lrdf = (df_restr - df_full)
         lrstat = -2*(llf_restr - llf_full)
         lr_pvalue = stats.chi2.sf(lrstat, lrdf)
@@ -1183,7 +1182,7 @@ class RegressionResults(LikelihoodModelResults):
         """
         import time
         from scikits.statsmodels.iolib.table import SimpleTable
-        from scikits.statsmodels.stats.stattools import (jarque_bera, 
+        from scikits.statsmodels.stats.stattools import (jarque_bera,
                 omni_normtest, durbin_watson)
 
         if yname is None:
