@@ -2,13 +2,13 @@
 
 contains:
 
-* conversion between central and non-central moments, skew, kurtosis and 
+* conversion between central and non-central moments, skew, kurtosis and
   cummulants
 * goodness-of-fit tests
   - powerdiscrepancy
   - gof_chisquare_discrete
   - gof_binning_discrete
-  
+
 
 
 Author: josef-pktd
@@ -16,7 +16,7 @@ Author: josef-pktd
 
 import numpy as np
 #fix these imports
-import scipy  
+import scipy
 from scipy import stats
 
 
@@ -47,7 +47,7 @@ def powerdiscrepancy(o, e, lambd=0.0, axis=0, ddof=0):
       axis : int
          axis for observations of one series
       ddof : int
-         degrees of freedom correction, 
+         degrees of freedom correction,
 
     Returns
     -------
@@ -124,9 +124,9 @@ def powerdiscrepancy(o, e, lambd=0.0, axis=0, ddof=0):
         elif lambd == 'modified_loglikeratio': a = -1
         elif lambd == 'cressie_read': a = 2/3.0
         else:
-            raise ValueError, 'lambd has to be a number or one of ' + \
+            raise ValueError('lambd has to be a number or one of ' + \
                     'loglikeratio, freeman_tukey, pearson, ' +\
-                    'modified_loglikeratio or cressie_read'
+                    'modified_loglikeratio or cressie_read')
 
     n = np.sum(o, axis=axis)
     nt = n
@@ -145,12 +145,12 @@ def powerdiscrepancy(o, e, lambd=0.0, axis=0, ddof=0):
         p = e
         e = nt * e
     else:
-        raise ValueError, 'observed and expected need to have the same' \
-                          'number of observations, or e needs to add to 1'
+        raise ValueError('observed and expected need to have the same ' +\
+                          'number of observations, or e needs to add to 1')
     k = o.shape[axis]
     if e.shape[axis] != k:
-        raise ValueError, 'observed and expected need to have the same' \
-                          'number of bins'
+        raise ValueError('observed and expected need to have the same ' +\
+                          'number of bins')
 
     # Note: taken from formulas, to simplify cancel n
     if a == 0:   # log likelihood ratio
@@ -271,7 +271,7 @@ def gof_binning_discrete(rvs, distfn, arg, nsupp=20):
     The results can be used for a chisquare test ::
 
         (chis,pval) = stats.chisquare(freq, expfreq)
-    
+
     originally written for scipy.stats test suite,
     still needs to be checked for standalone usage, insufficient input checking
     may not run yet (after copy/paste)
@@ -281,13 +281,13 @@ def gof_binning_discrete(rvs, distfn, arg, nsupp=20):
     todo :
       optimal number of bins ? (check easyfit),
       recommendation in literature at least 5 expected observations in each bin
-      
+
     '''
 
     # define parameters for test
 ##    n=2000
     n = len(rvs)
-    
+
     wsupp = 1.0/nsupp
 
 ##    distfn = getattr(stats, distname)

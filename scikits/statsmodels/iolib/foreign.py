@@ -24,18 +24,18 @@ class _StataMissingValue(object):
 
     Parameters
     -----------
-    offset 
+    offset
     value
 
     Attributes
     ----------
     string
     value
-    
+
     Notes
     -----
     More information: <http://www.stata.com/help.cgi?missing>
-    """ 
+    """
 
     def __init__(self, offset, value):
         self._value = value
@@ -78,13 +78,13 @@ class _StataVariable(object):
     -----
     More information: http://www.stata.com/help.cgi?format
     """
-    def __init__(self, variable_data): 
+    def __init__(self, variable_data):
         self._data = variable_data
 
-    def __int__(self): 
+    def __int__(self):
         return self.index
 
-    def __str__(self): 
+    def __str__(self):
         return self.name
     index = property(lambda self: self._data[0], doc='the variable\'s index \
 within an observation')
@@ -106,24 +106,24 @@ class StataReader(object):
 
     Provides methods to return the metadata of a Stata .dta file and
     a generator for the data itself.
-    
+
     Parameters
     ----------
     file : file-like
         A file-like object representing a Stata .dta file.
-    
+
     missing_values : bool
-        If missing_values is True, parse missing_values and return a 
+        If missing_values is True, parse missing_values and return a
         Missing Values object instead of None.
-    
+
     See also
     --------
     scikits.statsmodels.lib.io.genfromdta
 
     Notes
     -----
-    This is known only to work on file formats 113 (Stata 8/9) and 114 
-    (Stata 10/11).  Needs to be tested on older versions.  
+    This is known only to work on file formats 113 (Stata 8/9) and 114
+    (Stata 10/11).  Needs to be tested on older versions.
     Known not to work on format 104, 108.
 
     For more information about the .dta format see
@@ -137,8 +137,8 @@ class StataReader(object):
     _has_string_data = False
     _missing_values = False
     TYPE_MAP = range(251)+list('bhlfd')
-    MISSING_VALUES = { 'b': (-127,100), 'h': (-32767, 32740), 'l': 
-            (-2147483647, 2147483620), 'f': (-1.701e+38, +1.701e+38), 'd': 
+    MISSING_VALUES = { 'b': (-127,100), 'h': (-32767, 32740), 'l':
+            (-2147483647, 2147483620), 'f': (-1.701e+38, +1.701e+38), 'd':
             (-1.798e+308, +8.988e+307) }
 
     def __init__(self, fname, missing_values=False):
@@ -158,7 +158,7 @@ class StataReader(object):
     def file_format(self):
         """
         Returns the file format.
-        
+
         Returns
         -------
         out : int
@@ -195,15 +195,15 @@ class StataReader(object):
         Returns a list of the dataset's StataVariables objects.
         """
         return map(_StataVariable, zip(range(self._header['nvar']),
-            self._header['typlist'], self._header['varlist'], 
+            self._header['typlist'], self._header['varlist'],
             self._header['srtlist'],
-            self._header['fmtlist'], self._header['lbllist'], 
+            self._header['fmtlist'], self._header['lbllist'],
             self._header['vlblist']))
 
     def dataset(self, as_dict=False):
         """
         Returns a Python generator object for iterating over the dataset.
-        
+
 
         Parameters
         ----------
@@ -218,8 +218,8 @@ class StataReader(object):
 
         Notes
         -----
-        If missing_values is True during instantiation of StataReader then 
-        observations with _StataMissingValue(s) are not filtered and should 
+        If missing_values is True during instantiation of StataReader then
+        observations with _StataMissingValue(s) are not filtered and should
         be handled by your applcation.
         """
 
@@ -276,14 +276,14 @@ class StataReader(object):
         self._header['ds_format'] = unpack('b', self._file.read(1))[0]
 
         if self._header['ds_format'] not in [113,114]:
-            raise ValueError, "Only file formats 113 and 114 (Stata 9, 10, 11)\
+            raise ValueError("Only file formats 113 and 114 (Stata 9, 10, 11)\
  are supported.  Got format %s.  Please report if you think this error is \
-incorrect." % self._header['ds_format']
-        byteorder = self._header['byteorder'] = unpack('b', 
+incorrect." % self._header['ds_format'])
+        byteorder = self._header['byteorder'] = unpack('b',
                 self._file.read(1))[0]==0x1 and '>' or '<'
         self._header['filetype'] = unpack('b', self._file.read(1))[0]
         self._file.read(1)
-        nvar = self._header['nvar'] = unpack(byteorder+'h', 
+        nvar = self._header['nvar'] = unpack(byteorder+'h',
                 self._file.read(2))[0]
         if self._header['ds_format'] < 114:
             self._header['nobs'] = unpack(byteorder+'i', self._file.read(4))[0]
@@ -297,7 +297,7 @@ incorrect." % self._header['ds_format']
                 for i in range(nvar)]
         self._header['varlist'] = [self._null_terminate(self._file.read(33)) \
                 for i in range(nvar)]
-        self._header['srtlist'] = unpack(byteorder+('h'*(nvar+1)), 
+        self._header['srtlist'] = unpack(byteorder+('h'*(nvar+1)),
                 self._file.read(2*(nvar+1)))[:-1]
         if self._header['ds_format'] <= 113:
             self._header['fmtlist'] = \
@@ -315,8 +315,8 @@ incorrect." % self._header['ds_format']
         # ignore expansion fields
 # When reading, read five bytes; the last four bytes now tell you the size of
 # the next read, which you discard.  You then continue like this until you
-# read 5 bytes of zeros. 
-# TODO: The way I read this is that they both should be zero, but that's 
+# read 5 bytes of zeros.
+# TODO: The way I read this is that they both should be zero, but that's
 # not what we get.
 
         while True:
@@ -325,10 +325,10 @@ incorrect." % self._header['ds_format']
             if data_type == 0:
                 break
             self._file.read(data_len)
-        
+
         # other state vars
         self._data_location = self._file.tell()
-        self._has_string_data = len(filter(lambda x: type(x) is int, 
+        self._has_string_data = len(filter(lambda x: type(x) is int,
             self._header['typlist'])) > 0
         self._col_size()
 
@@ -339,7 +339,7 @@ incorrect." % self._header['ds_format']
     def _col_size(self, k = None):
         """Calculate size of a data record."""
         if len(self._col_sizes) == 0:
-            self._col_sizes = map(lambda x: self._calcsize(x), 
+            self._col_sizes = map(lambda x: self._calcsize(x),
                     self._header['typlist'])
         if k == None:
             return self._col_sizes
@@ -365,12 +365,12 @@ incorrect." % self._header['ds_format']
                 if type(typlist[i]) is int:
                     data[i] = self._null_terminate(self._file.read(typlist[i]))
                 else:
-                    data[i] = self._unpack(typlist[i], 
+                    data[i] = self._unpack(typlist[i],
                             self._file.read(self._col_size(i)))
             return data
         else:
-            return map(lambda i: self._unpack(typlist[i], 
-                self._file.read(self._col_size(i))), 
+            return map(lambda i: self._unpack(typlist[i],
+                self._file.read(self._col_size(i))),
                 range(self._header['nvar']))
 
 def genfromdta(fname, excludelist=None, missing_flt=-999., missing_str=""):
@@ -402,7 +402,7 @@ def genfromdta(fname, excludelist=None, missing_flt=-999., missing_str=""):
 #    validate_names = np.lib._iotools.NameValidator(excludelist=excludelist,
 #                                    deletechars=deletechars,
 #                                    case_sensitive=case_sensitive)
-    
+
 
 #TODO: does this need to handle the byteorder?
     header = fhd.file_headers()
@@ -418,7 +418,7 @@ def genfromdta(fname, excludelist=None, missing_flt=-999., missing_str=""):
 
     # build dtype from stata formats
     # see http://www.stata.com/help.cgi?format
-    # This converts all of these to float64 
+    # This converts all of these to float64
     # all time and strings are converted to strings
     #TODO: put these notes in the docstring
     #TODO: need to write a time parser
@@ -499,7 +499,7 @@ def savetxt(fname, X, names=None, fmt='%.18e', delimiter=' '):
     """
     Save an array to a text file.
 
-    This is just a copy of numpy.savetxt patched to support structured arrays 
+    This is just a copy of numpy.savetxt patched to support structured arrays
     or a header of names.  Does not include py3 support now in savetxt.
 
     Parameters
@@ -512,7 +512,7 @@ def savetxt(fname, X, names=None, fmt='%.18e', delimiter=' '):
         Data to be saved to a text file.
     names : list, optional
         If given names will be the column header in the text file.  If None and
-        X is a structured or recarray then the names are taken from 
+        X is a structured or recarray then the names are taken from
         X.dtype.names.
     fmt : str or sequence of strs
         A single format (%10.5f), a sequence of formats, or a

@@ -1,7 +1,7 @@
 """
 Limited dependent variable and qualitative variables.
 
-Includes binary outcomes, count data, (ordered) ordinal data and limited 
+Includes binary outcomes, count data, (ordered) ordinal data and limited
 dependent variables.
 
 General References
@@ -10,19 +10,19 @@ General References
 A.C. Cameron and P.K. Trivedi.  `Regression Analysis of Count Data`.  Cambridge,
     1998
 
-G.S. Madalla. `Limited-Dependent and Qualitative Variables in Econometrics`. 
+G.S. Madalla. `Limited-Dependent and Qualitative Variables in Econometrics`.
     Cambridge, 1983.
 
-W. Greene. `Econometric Analysis`. Prentice Hall, 5th. edition. 2003. 
+W. Greene. `Econometric Analysis`. Prentice Hall, 5th. edition. 2003.
 """
 
 __all__ = ["Poisson","Logit","Probit","MNLogit"]
 
 import numpy as np
-from scikits.statsmodels.base.model import (LikelihoodModel, 
+from scikits.statsmodels.base.model import (LikelihoodModel,
         LikelihoodModelResults)
 import scikits.statsmodels.tools.tools as tools
-from scikits.statsmodels.tools.decorators import (resettable_cache, 
+from scikits.statsmodels.tools.decorators import (resettable_cache,
         cache_readonly)
 from scikits.statsmodels.regression.linear_model import OLS
 from scipy import stats, factorial, special, optimize # opt just for nbin
@@ -34,11 +34,11 @@ from scipy import stats, factorial, special, optimize # opt just for nbin
 def _check_discrete_args(at, method):
     """
     Checks the arguments for margeff if the exogenous variables are discrete.
-    """     
+    """
     if method in ['dyex','eyex']:
-        raise ValueError, "%s not allowed for discrete variables" % method
+        raise ValueError("%s not allowed for discrete variables" % method)
     if at in ['median', 'zero']:
-        raise ValueError, "%s not allowed for discrete variables" % at
+        raise ValueError("%s not allowed for discrete variables" % at)
 
 def _isdummy(X):
     """
@@ -95,7 +95,7 @@ class DiscreteModel(LikelihoodModel):
     """
     Abstract class for discrete choice models.
 
-    This class does not do anything itself but lays out the methods and 
+    This class does not do anything itself but lays out the methods and
     call signature expected of child classes in addition to those of
     scikits.statsmodels.model.LikelihoodModel.
     """
@@ -104,7 +104,7 @@ class DiscreteModel(LikelihoodModel):
 
     def initialize(self):
         """
-        Initialize is called by 
+        Initialize is called by
         scikits.statsmodels.model.LikelihoodModel.__init__
         and should contain any preprocessing that needs to be done for a model.
         """
@@ -134,13 +134,13 @@ class DiscreteModel(LikelihoodModel):
         if start_params is None and isinstance(self, MNLogit):
             start_params = np.zeros((self.exog.shape[1]*\
                     (self.wendog.shape[1]-1)))
-        mlefit = super(DiscreteModel, self).fit(start_params=start_params, 
-                method=method, maxiter=maxiter, full_output=full_output, 
+        mlefit = super(DiscreteModel, self).fit(start_params=start_params,
+                method=method, maxiter=maxiter, full_output=full_output,
                 disp=disp, callback=callback, **kwargs)
         if isinstance(self, MNLogit):
             mlefit.params = mlefit.params.reshape(-1, self.exog.shape[1])
         discretefit = DiscreteResults(self, mlefit)
-        return discretefit 
+        return discretefit
     fit.__doc__ += LikelihoodModel.fit.__doc__
 
     def predict(self, exog=None, linear=False):
@@ -148,17 +148,17 @@ class DiscreteModel(LikelihoodModel):
         Predict response variable of a model given exogenous variables.
 
         exog : array-like
-            1d or 2d array of exogenous values.  If not supplied, the 
+            1d or 2d array of exogenous values.  If not supplied, the
             whole exog attribute of the model is used.
         linear : bool, optional
-            If True, returns the linear predictor dot(exog,params).  Else, 
+            If True, returns the linear predictor dot(exog,params).  Else,
             returns the value of the cdf at the linear predictor.
 
         Returns
         -------
         array
             Fitted values at exog.
-        
+
         Notes
         -----
         You must fit the model first.
@@ -185,7 +185,7 @@ class Poisson(DiscreteModel):
         `exog` is an n x p array where n is the number of observations and p
         is the number of regressors including the intercept if one is included
         in the data.
-    
+
     Attributes
     -----------
     endog : array
@@ -236,7 +236,7 @@ class Poisson(DiscreteModel):
         y = self.endog
 #        xb = np.dot(self.exog, params)
         return stats.poisson.cdf(y, np.exp(X))
-    
+
     def pdf(self, X):
         """
         Poisson model probability mass function
@@ -338,7 +338,7 @@ class Poisson(DiscreteModel):
         X = self.exog
         L = np.exp(np.dot(X,params))
         return -np.dot(L*X.T, X)
-    
+
 #    def fit(self, start_params=None, maxiter=35, method='newton',
 #            tol=1e-08):
 #        """
@@ -353,7 +353,7 @@ class Poisson(DiscreteModel):
 #        method : str, optional
 #            `method` can be 'newton', 'ncg', 'bfgs'. The default is 'newton'.
 #        tol : float, optional
-#            The convergence tolerance for the solver.  The default is 
+#            The convergence tolerance for the solver.  The default is
 #            1e-08.
 #
 #        Returns
@@ -379,7 +379,7 @@ class NbReg(DiscreteModel):
 class Logit(DiscreteModel):
     """
     Binary choice logit model
-    
+
     Parameters
     ----------
     endog : array-like
@@ -388,7 +388,7 @@ class Logit(DiscreteModel):
         `exog` is an n x p array where n is the number of observations and p
         is the number of regressors including the intercept if one is included
         in the data.
-    
+
     Attributes
     -----------
     endog : array
@@ -410,23 +410,23 @@ class Logit(DiscreteModel):
     predict
     score
     """
-    
+
     def cdf(self, X):
         """
         The logistic cumulative distribution function
-    
+
         Parameters
         ----------
         X : array-like
             `X` is the linear predictor of the logit model.  See notes.
-        
+
         Returns
         -------
         1/(1 + exp(-X))
 
         Notes
         ------
-        In the logit model, 
+        In the logit model,
 
         .. math:: \\Lambda\\left(x^{\\prime}\\beta\\right)=\\text{Prob}\\left(Y=1|x\\right)=\\frac{e^{x^{\\prime}\\beta}}{1+e^{x^{\\prime}\\beta}}
         """
@@ -437,7 +437,7 @@ class Logit(DiscreteModel):
         """
         The logistic probability density function
 
-        Parameters 
+        Parameters
         -----------
         X : array-like
             `X` is the linear predictor of the logit model.  See notes.
@@ -454,7 +454,7 @@ class Logit(DiscreteModel):
         """
         X = np.asarray(X)
         return np.exp(-X)/(1+np.exp(-X))**2
-    
+
     def loglike(self, params):
         """
         Log-likelihood of logit model.
@@ -472,7 +472,7 @@ class Logit(DiscreteModel):
         ------
         .. math:: \\ln L=\\sum_{i}\\ln\\Lambda\\left(q_{i}x_{i}^{\\prime}\\beta\\right)
 
-        Where :math:`q=2y-1`. This simplification comes from the fact that the 
+        Where :math:`q=2y-1`. This simplification comes from the fact that the
         logistic distribution is symmetric.
         """
         q = 2*self.endog - 1
@@ -537,7 +537,7 @@ class Logit(DiscreteModel):
 #        method : str, optional
 #            `method` can be 'newton', 'ncg', 'bfgs'. The default is 'newton'.
 #        tol : float, optional
-#            The convergence tolerance for the solver.  The default is 
+#            The convergence tolerance for the solver.  The default is
 #            1e-08.
 #
 #        Returns
@@ -569,7 +569,7 @@ class Probit(DiscreteModel):
         `exog` is an n x p array where n is the number of observations and p
         is the number of regressors including the intercept if one is included
         in the data.
-    
+
     Attributes
     -----------
     endog : array
@@ -650,18 +650,18 @@ class Probit(DiscreteModel):
         -----
         .. math:: \\ln L=\\sum_{i}\\ln\\Phi\\left(q_{i}x_{i}^{\\prime}\\beta\\right)
 
-        Where :math:`q=2y-1`. This simplification comes from the fact that the 
+        Where :math:`q=2y-1`. This simplification comes from the fact that the
         normal distribution is symmetric.
         """
 
         q = 2*self.endog - 1
         X = self.exog
-        return np.sum(np.log(np.clip(self.cdf(q*np.dot(X,params)),1e-20, 
+        return np.sum(np.log(np.clip(self.cdf(q*np.dot(X,params)),1e-20,
             1)))
 
     def score(self, params):
         """
-        Probit model score (gradient) vector 
+        Probit model score (gradient) vector
 
         Parameters
         ----------
@@ -676,7 +676,7 @@ class Probit(DiscreteModel):
         -----
         .. math:: \\frac{\\partial\\ln L}{\\partial\\beta}=\\sum_{i=1}^{n}\\left[\\frac{q_{i}\\phi\\left(q_{i}x_{i}^{\\prime}\\beta\\right)}{\\Phi\\left(q_{i}x_{i}^{\\prime}\\beta\\right)}\\right]x_{i}
 
-        Where :math:`q=2y-1`. This simplification comes from the fact that the 
+        Where :math:`q=2y-1`. This simplification comes from the fact that the
         normal distribution is symmetric.
         """
         y = self.endog
@@ -703,7 +703,7 @@ class Probit(DiscreteModel):
         Notes
         -----
         .. math:: \\frac{\\partial^{2}\\ln L}{\\partial\\beta\\partial\\beta^{\\prime}}=-\lambda_{i}\\left(\\lambda_{i}+x_{i}^{\\prime}\\beta\\right)x_{i}x_{i}^{\\prime}
-        where 
+        where
         .. math:: \\lambda_{i}=\\frac{q_{i}\\phi\\left(q_{i}x_{i}^{\\prime}\\beta\\right)}{\\Phi\\left(q_{i}x_{i}^{\\prime}\\beta\\right)}
         and :math:`q=2y-1`
         """
@@ -727,7 +727,7 @@ class Probit(DiscreteModel):
 #        method : str, optional
 #            `method` can be 'newton', 'ncg', 'bfgs'. The default is 'newton'.
 #        tol : float, optional
-#            The convergence tolerance for the solver.  The default is 
+#            The convergence tolerance for the solver.  The default is
 #            1e-08.
 #
 #        Returns
@@ -745,7 +745,7 @@ class Probit(DiscreteModel):
 #        params = mlefit.params
 #        mlefit = DiscreteResults(self, params, self.hessian(params))
 #        return mlefit
-            
+
 
 class MNLogit(DiscreteModel):
     """
@@ -758,25 +758,25 @@ class MNLogit(DiscreteModel):
         contain strings, ints, or floats.  Note that if it contains strings,
         every distinct string will be a category.  No stripping of whitespace
         is done.
-    exog : array-like 
+    exog : array-like
         `exog` is an n x p array where n is the number of observations and p
         is the number of regressors including the intercept if one is included
         in the data.
-    
+
     Attributes
     ----------
     J : float
         The number of choices for the endogenous variable. Note that this
         is zero-indexed.
     K : float
-        The actual number of parameters for the exogenous design.  Includes 
+        The actual number of parameters for the exogenous design.  Includes
         the constant if the design has one.
     endog : array
         A reference to the endogenous response variable
     exog : array
         A reference to the exogenous design.
     names : dict
-        A dictionary mapping the column number in `wendog` to the variables 
+        A dictionary mapping the column number in `wendog` to the variables
         in `endog`.
     nobs : float
         The number of observations of the model.
@@ -807,12 +807,12 @@ class MNLogit(DiscreteModel):
         """
         Preprocesses the data for MNLogit.
 
-        Turns the endogenous variable into an array of dummies and assigns 
+        Turns the endogenous variable into an array of dummies and assigns
         J and K.
         """
         super(MNLogit, self).initialize()
         #This is also a "whiten" method as used in other models (eg regression)
-        wendog, self.names = tools.categorical(self.endog, drop=True, 
+        wendog, self.names = tools.categorical(self.endog, drop=True,
                 dictnames=True)
         self.wendog = wendog    # don't drop first category
         self.J = float(wendog.shape[1])
@@ -838,7 +838,7 @@ class MNLogit(DiscreteModel):
         if exog == None:
             exog = self.exog
         eXB = np.exp(np.dot(params.reshape(-1, exog.shape[1]), exog.T))
-        eXB = np.vstack((np.ones((1, self.nobs)), eXB)) 
+        eXB = np.vstack((np.ones((1, self.nobs)), eXB))
         return eXB
 
     def pdf(self, eXB):
@@ -863,7 +863,7 @@ class MNLogit(DiscreteModel):
         Notes
         -----
         In the multinomial logit model.
-        .. math:: \\frac{\\exp\\left(\\beta_{j}^{\\prime}x_{i}\\right)}{\\sum_{k=0}^{J}\\exp\\left(\\beta_{k}^{\\prime}x_{i}\\right)}        
+        .. math:: \\frac{\\exp\\left(\\beta_{j}^{\\prime}x_{i}\\right)}{\\sum_{k=0}^{J}\\exp\\left(\\beta_{k}^{\\prime}x_{i}\\right)}
         """
         num = eXB
         denom = eXB.sum(axis=0)
@@ -885,7 +885,7 @@ class MNLogit(DiscreteModel):
         Notes
         ------
         .. math:: \\ln L=\\sum_{i=1}^{n}\\sum_{j=0}^{J}d_{ij}\\ln\\left(\\frac{\\exp\\left(\\beta_{j}^{\\prime}x_{i}\\right)}{\\sum_{k=0}^{J}\\exp\\left(\\beta_{k}^{\\prime}x_{i}\\right)}\\right)
-        where :math:`d_{ij}=1` if individual `i` chose alternative `j` and 0 
+        where :math:`d_{ij}=1` if individual `i` chose alternative `j` and 0
         if not.
         """
         d = self.wendog
@@ -904,7 +904,7 @@ class MNLogit(DiscreteModel):
 
         Returns
         --------
-        The 2-d score vector of the multinomial logit model evaluated at 
+        The 2-d score vector of the multinomial logit model evaluated at
         `params`.
 
         Notes
@@ -913,7 +913,7 @@ class MNLogit(DiscreteModel):
 
         for :math:`j=1,...,J`
 
-        In the multinomial model ths score matrix is K x J-1 but is returned 
+        In the multinomial model ths score matrix is K x J-1 but is returned
         as a flattened array to work with the solvers.
         """
         eXB = self._eXB(params)
@@ -965,7 +965,7 @@ class MNLogit(DiscreteModel):
         H = np.transpose(H.reshape(J,J,K,K), (0,2,1,3)).reshape(J*K,J*K)
         return H
 
-#    def fit(self, start_params=None, maxiter=35, method='newton', 
+#    def fit(self, start_params=None, maxiter=35, method='newton',
 #            tol=1e-08):
 #        """
 #        Fits the multinomial logit model.
@@ -979,7 +979,7 @@ class MNLogit(DiscreteModel):
 #        method : str, optional
 #            `method` can be 'newton', 'ncg', 'bfgs'. The default is 'newton'.
 #        tol : float, optional
-#            The convergence tolerance for the solver.  The default is 
+#            The convergence tolerance for the solver.  The default is
 #            1e-08.
 #
 #        Notes
@@ -994,7 +994,7 @@ class MNLogit(DiscreteModel):
 #        params = mlefit.params.reshape(-1, self.exog.shape[1])
 #        mlefit = DiscreteResults(self, params, self.hessian(params))
 #        return mlefit
-            
+
 #TODO: Weibull can replaced by a survival analsysis function
 # like stat's streg (The cox model as well)
 #class Weibull(DiscreteModel):
@@ -1049,7 +1049,7 @@ class MNLogit(DiscreteModel):
 ## The example had problems with all zero start values, Hessian = 0
 #        if start_params is None:
 #            start_params = OLS(self.endog, self.exog).fit().params
-#        mlefit = super(Weibull, self).fit(start_params=start_params, 
+#        mlefit = super(Weibull, self).fit(start_params=start_params,
 #                method=method, maxiter=maxiter, tol=tol)
 #        return mlefit
 #
@@ -1127,7 +1127,7 @@ class NBin(DiscreteModel):
                     continue
                 hess_arr[i,j] = np.sum(-exog[:,i,None]*exog[:,j,None] *\
                                 const_arr, axis=0)
-        hess_arr[np.triu_indices(dim, k=1)] = hess_arr.T[np.triu_indices(dim, 
+        hess_arr[np.triu_indices(dim, k=1)] = hess_arr.T[np.triu_indices(dim,
                                                         k =1)]
 
         # for dl/dparams dalpha
@@ -1154,7 +1154,7 @@ class NBin(DiscreteModel):
 # Use poisson fit as first guess.
         start_params = Poisson(self.endog, self.exog).fit(disp=0).params
         start_params = np.r_[start_params, 0.1]
-        mlefit = super(NegBinTwo, self).fit(start_params=start_params, 
+        mlefit = super(NegBinTwo, self).fit(start_params=start_params,
                 maxiter=maxiter, method=method, tol=tol)
         return mlefit
 
@@ -1197,28 +1197,28 @@ class DiscreteResults(LikelihoodModelResults):
     fitted_values : array
         Linear predictor XB.
     llf : float
-        Value of the loglikelihood 
+        Value of the loglikelihood
     llnull : float
         Value of the constant-only loglikelihood
     llr : float
         Likelihood ratio chi-squared statistic; -2*(`llnull` - `llf`)
     llr_pvalue : float
-        The chi-squared probability of getting a log-likelihood ratio 
+        The chi-squared probability of getting a log-likelihood ratio
         statistic greater than llr.  llr has a chi-squared distribution
         with degrees of freedom `df_model`.
     prsquared : float
         McFadden's pseudo-R-squared. 1 - (`llf`/`llnull`)
-    
+
     Methods
     -------
     margeff
         Get marginal effects of the fitted model.
     conf_int
-    
+
     """
 
     def __init__(self, model, mlefit):
-#        super(DiscreteResults, self).__init__(model, params, 
+#        super(DiscreteResults, self).__init__(model, params,
 #                np.linalg.inv(-hessian), scale=1.)
         self.model = model
         self.df_model = model.df_model
@@ -1226,7 +1226,7 @@ class DiscreteResults(LikelihoodModelResults):
         self.nobs = model.nobs
         self._cache = resettable_cache()
         self.__dict__.update(mlefit.__dict__)
-    
+
     @cache_readonly
     def bse(self):
         bse = np.sqrt(np.diag(self.cov_params()))
@@ -1300,7 +1300,7 @@ class DiscreteResults(LikelihoodModelResults):
 
     def conf_int(self, alpha=.05, cols=None):
         if hasattr(self.model, "J"):
-            confint = super(DiscreteResults, self).conf_int(alpha=alpha, 
+            confint = super(DiscreteResults, self).conf_int(alpha=alpha,
                     cols=cols)
             return confint.transpose(0,2,1).reshape(self.model.J-1,self.model.K,2)
         else:
@@ -1322,7 +1322,7 @@ class DiscreteResults(LikelihoodModelResults):
     t.__doc__ = LikelihoodModelResults.t.__doc__
 
 
-    def margeff(self, at='overall', method='dydx', atexog=None, dummy=False, 
+    def margeff(self, at='overall', method='dydx', atexog=None, dummy=False,
             count=False):
         """Get marginal effects of the fitted model.
 
@@ -1343,16 +1343,16 @@ class DiscreteResults(LikelihoodModelResults):
                 are returned.  This is the default.
             'eyex' - estimate elasticities of variables in `exog` --
                 d(lny)/d(lnx)
-            'dyex' - estimate semielasticity -- dy/d(lnx) 
+            'dyex' - estimate semielasticity -- dy/d(lnx)
             'eydx' - estimate semeilasticity -- d(lny)/dx
-            Note that tranformations are done after each observation is 
+            Note that tranformations are done after each observation is
             calculated.  Semi-elasticities for binary variables are computed
-            using the midpoint method. 'dyex' and 'eyex' do not make sense 
+            using the midpoint method. 'dyex' and 'eyex' do not make sense
             for discrete variables.
         atexog : array-like, optional
-            Optionally, you can provide the exogenous variables over which to 
+            Optionally, you can provide the exogenous variables over which to
             get the marginal effects.  This should be a dictionary with the key
-            as the zero-indexed column number and the value of the dictionary.  
+            as the zero-indexed column number and the value of the dictionary.
             Default is None for all independent variables less the constant.
         dummy : bool, optional
             If False, treats binary variables (if present) as continuous.  This
@@ -1361,7 +1361,7 @@ class DiscreteResults(LikelihoodModelResults):
             is treated as binary.  Each binary variable is treated separately
             for now.
         count : bool, optional
-            If False, treats count variables (if present) as continuous.  This 
+            If False, treats count variables (if present) as continuous.  This
             is the default.  Else if True, the marginal effect is the
             change in probabilities when each observation is increased by one.
 
@@ -1378,14 +1378,14 @@ class DiscreteResults(LikelihoodModelResults):
 #TODO:
 #        factor : None or dictionary, optional
 #            If a factor variable is present (it must be an integer, though
-#            of type float), then `factor` may be a dict with the zero-indexed 
+#            of type float), then `factor` may be a dict with the zero-indexed
 #            column of the factor and the value should be the base-outcome.
 
         # check arguments
         if at not in ['overall','mean','median','zero','all']:
-            raise ValueError, "%s not a valid option for `at`." % at
+            raise ValueError("%s not a valid option for `at`." % at)
         if method not in ['dydx','eyex','dyex','eydx']:
-            raise ValueError, "method is not understood.  Got %s" % method
+            raise ValueError("method is not understood.  Got %s" % method)
 
 
         # get local variables
@@ -1396,7 +1396,7 @@ class DiscreteResults(LikelihoodModelResults):
         exog = model.exog.copy() # copy because values are changed
         ind = exog.var(0) != 0 # index for non-constants
 
-      
+
         # handle discrete exogenous variables
         if dummy:
             _check_discrete_args(at, method)
@@ -1476,7 +1476,7 @@ class DiscreteResults(LikelihoodModelResults):
                     effect0 = model.cdf(np.dot(exog0, params))
                     effect1 = model.cdf(np.dot(exog1, params))
 #TODO: compute discrete elasticity correctly
-#Stata doesn't use the midpoint method or a weighted average.  
+#Stata doesn't use the midpoint method or a weighted average.
 #Check elsewhere
                     if 'ey' in method:
 #                        #TODO: don't know if this is theoretically correct
@@ -1487,17 +1487,17 @@ class DiscreteResults(LikelihoodModelResults):
                         wfv = (.5*model.cdf(fittedvalues1) + \
                                 .5*model.cdf(fittedvalues0))
                         effects[i] = ((effect1 - effect0)/wfv).mean()
-                    effects[i] = (effect1 - effect0).mean() 
+                    effects[i] = (effect1 - effect0).mean()
         # Set standard error of the marginal effects by Delta method.
         self.margfx_se = None
         self.margfx = effects
         return effects
-        
+
 if __name__=="__main__":
     import numpy as np
     import scikits.statsmodels.api as sm
 # Scratch work for negative binomial models
-# dvisits was written using an R package, I can provide the dataset 
+# dvisits was written using an R package, I can provide the dataset
 # on request until the copyright is cleared up
 #TODO: request permission to use dvisits
     data2 = np.genfromtxt('../datasets/dvisits/dvisits.csv', names=True)
@@ -1528,9 +1528,9 @@ if __name__=="__main__":
     nbreg = NBin
     mod = nbreg(data.endog, data.exog.view((float,9)))
 #FROM STATA:
-    params = np.asarray([-.05654133,  -.21214282, .0878311, -.02991813, .22903632, 
+    params = np.asarray([-.05654133,  -.21214282, .0878311, -.02991813, .22903632,
             .06210226, .06799715, .08407035, .18532336])
-    bse = [0.0062541, 0.0231818, 0.0036942, 0.0034796, 0.0305176, 0.0012397, 
+    bse = [0.0062541, 0.0231818, 0.0036942, 0.0034796, 0.0305176, 0.0012397,
             0.0198008, 0.0368707, 0.0766506]
     lnalpha = .31221786
     mod.loglike(np.r_[params,np.exp(lnalpha)])
@@ -1538,7 +1538,7 @@ if __name__=="__main__":
     func = lambda x: -mod.loglike(x)
     grad = lambda x: -mod.score(x)
     from scipy import optimize
-#    res1 = optimize.fmin_l_bfgs_b(func, np.r_[poiss_res.params,.1], 
+#    res1 = optimize.fmin_l_bfgs_b(func, np.r_[poiss_res.params,.1],
 #                        approx_grad=True)
     res1 = optimize.fmin_bfgs(func, np.r_[poiss_res.params,.1], fprime=grad)
     from scikits.statsmodels.sandbox.regression.numdiff import approx_hess_cs
