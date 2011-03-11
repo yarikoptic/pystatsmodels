@@ -42,7 +42,7 @@ __all__ = ['COPYRIGHT','TITLE','SOURCE','DESCRSHORT','DESCRLONG','NOTE', 'load']
 
 __docformat__ = 'restructuredtext'
 
-COPYRIGHT   = """Used with expressed permission from the original author, 
+COPYRIGHT   = """Used with express permission from the original author,
 who retains all rights."""
 TITLE       = "Taxation Powers Vote for the Scottish Parliamant 1997"
 SOURCE      = """
@@ -53,17 +53,17 @@ http://jgill.wustl.edu/research/books.html
 DESCRSHORT  = """Taxation Powers' Yes Vote for Scottish Parliamanet-1997"""
 
 DESCRLONG   = """
-This data is based on the example in Gill and describes the proportion of 
-voters who voted Yes to grant the Scottish Parliament taxation powers.  
-The data are divided into 32 council districts.  This example's explanatory 
-variables include the amount of council tax collected in pounds sterling as 
-of April 1997 per two adults before adjustments, the female percentage of 
-total claims for unemployment benefits as of January, 1998, the standardized 
-mortality rate (UK is 100), the percentage of labor force participation, 
-regional GDP, the percentage of children aged 5 to 15, and an interaction term 
+This data is based on the example in Gill and describes the proportion of
+voters who voted Yes to grant the Scottish Parliament taxation powers.
+The data are divided into 32 council districts.  This example's explanatory
+variables include the amount of council tax collected in pounds sterling as
+of April 1997 per two adults before adjustments, the female percentage of
+total claims for unemployment benefits as of January, 1998, the standardized
+mortality rate (UK is 100), the percentage of labor force participation,
+regional GDP, the percentage of children aged 5 to 15, and an interaction term
 between female unemployment and the council tax.
 
-The original source files and variable information are included in 
+The original source files and variable information are included in
 /scotland/src/
 """
 
@@ -74,7 +74,7 @@ Variable name definitions:
     YES : Proportion voting yes to granting taxation powers to the Scottish
         pariliament.
     COUTAX : Amount of council tax collected in pounds steling as of April '97
-    UNEMPF : Female percentage of total unemployment benefits claims as of 
+    UNEMPF : Female percentage of total unemployment benefits claims as of
         January 1998
     MOR : The standardized mortality rate (UK is 100)
     ACT : Labor force participation (Short for active)
@@ -93,14 +93,14 @@ from os.path import dirname, abspath
 def load():
     """
     Load the Scotvote data and returns a Dataset instance.
-   
+
     Returns
     -------
-    Dataset instance: 
-        See DATASET_PROPOSAL.txt for more information.    
+    Dataset instance:
+        See DATASET_PROPOSAL.txt for more information.
     """
     filepath = dirname(abspath(__file__))
-    data = recfromtxt(filepath + '/scotvote.csv', delimiter=",", 
+    data = recfromtxt(filepath + '/scotvote.csv', delimiter=",",
             names=True, dtype=float, usecols=(1,2,3,4,5,6,7,8))
     names = list(data.dtype.names)
     endog = array(data[names[0]], dtype=float)
