@@ -43,7 +43,7 @@ __all__ = ['COPYRIGHT','TITLE','SOURCE','DESCRSHORT','DESCRLONG','NOTE', 'load']
 
 __docformat__ = 'restructuredtext'
 
-COPYRIGHT   = """Used with expressed permission of the original author, who 
+COPYRIGHT   = """Used with express permission of the original author, who
 retains all rights."""
 TITLE       = """Greene's credit scoring data"""
 SOURCE      = """
@@ -76,14 +76,14 @@ from os.path import dirname, abspath
 
 def load():
     """Load the credit card data and returns a Dataset class.
-   
+
     Returns
     -------
-    Dataset instance: 
+    Dataset instance:
         See DATASET_PROPOSAL.txt for more information.
     """
     filepath = dirname(abspath(__file__))
-    data = recfromtxt(filepath + '/ccard.csv', delimiter=",", 
+    data = recfromtxt(filepath + '/ccard.csv', delimiter=",",
             names=True, dtype=float)
     names = list(data.dtype.names)
     endog = array(data[names[0]], dtype=float)

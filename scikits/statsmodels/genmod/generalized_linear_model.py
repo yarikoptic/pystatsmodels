@@ -22,9 +22,9 @@ import numpy as np
 import families
 from scikits.statsmodels.tools.tools import rank
 from scikits.statsmodels.regression.linear_model import WLS
-from scikits.statsmodels.base.model import (LikelihoodModel, 
+from scikits.statsmodels.base.model import (LikelihoodModel,
         LikelihoodModelResults)
-from scikits.statsmodels.tools.decorators import (cache_readonly, 
+from scikits.statsmodels.tools.decorators import (cache_readonly,
         resettable_cache)
 
 from scipy.stats import t
@@ -322,12 +322,12 @@ class GLM(LikelihoodModel):
             elif self.scaletype.lower() == 'dev':
                 return self.family.deviance(self.endog, mu)/self.df_resid
             else:
-                raise ValueError, "Scale %s with type %s not understood" %\
-                    (self.scaletype,type(self.scaletype))
+                raise ValueError("Scale %s with type %s not understood" %\
+                    (self.scaletype,type(self.scaletype)))
 
         else:
-            raise ValueError, "Scale %s with type %s not understood" %\
-                (self.scaletype, type(self.scaletype))
+            raise ValueError("Scale %s with type %s not understood" %\
+                (self.scaletype, type(self.scaletype)))
 
     def predict(self, exog, params=None, linear=False):
         """
@@ -353,8 +353,8 @@ class GLM(LikelihoodModel):
         If the model as not yet been fit, params is not optional.
         """
         if self._results is None and params is None:
-            raise ValueError, "If the model has not been fit, then you must \
-specify the params argument."
+            raise ValueError("If the model has not been fit, then you must \
+specify the params argument.")
         if self._results is not None:
             params = self.results.params
         if linear:
@@ -394,8 +394,8 @@ specify the params argument."
                     np.ones((endog.shape[0]))
         self.scaletype = scale
         if isinstance(self.family, families.Binomial):
-# this checks what kind of data is given for Binomial.  
-# family will need a reference to endog if this is to be removed from the 
+# this checks what kind of data is given for Binomial.
+# family will need a reference to endog if this is to be removed from the
 # preprocessing
             self.endog = self.family.initialize(self.endog)
 
@@ -413,8 +413,8 @@ specify the params argument."
         self.iteration += 1
         dev = self.family.deviance(self.endog, mu)
         if np.isnan(dev):
-            raise ValueError, "The first guess on the deviance function \
-returned a nan.  This could be a boundary problem and should be reported."
+            raise ValueError("The first guess on the deviance function \
+returned a nan.  This could be a boundary problem and should be reported.")
         else:
             self.history['deviance'].append(dev)
             # first guess on the deviance is assumed to be scaled by 1.
@@ -583,7 +583,7 @@ class GLMResults(LikelihoodModelResults):
     def resid_deviance(self):
         return self.family.resid_dev(self._endog, self.mu)
 
-    
+
     @cache_readonly
     def pvalues(self):
         return t.sf(np.abs(self.tvalues), self.df_resid)*2
@@ -605,13 +605,13 @@ class GLMResults(LikelihoodModelResults):
         model = self.model
         exog = np.ones((len(endog),1))
         if hasattr(model, 'offset'):
-            return GLM(endog, exog, offset=model.offset, 
+            return GLM(endog, exog, offset=model.offset,
                 family=self.family).fit().mu
         elif hasattr(model, 'exposure'):
             return GLM(endog, exog, exposure=model.exposure,
                     family=self.family).fit().mu
         else:
-            return WLS(endog, exog, 
+            return WLS(endog, exog,
                 weights=self._data_weights).fit().fittedvalues
 
     @cache_readonly
@@ -953,9 +953,9 @@ Log likelihood   = -76.94564525                    BIC             =  10.20398
     endog = np.round(data.endog)
     mod = sm.GLM(endog, exog, family=sm.families.Poisson()).fit()
 
-    res1 = GLM(endog, exog, family=sm.families.Poisson(), 
+    res1 = GLM(endog, exog, family=sm.families.Poisson(),
                             offset=offset).fit(tol=1e-12, maxiter=250)
     exposuremod = GLM(endog, exog, family=sm.families.Poisson(),
-                            exposure = data.exog[:,-1]).fit(tol=1e-12, 
+                            exposure = data.exog[:,-1]).fit(tol=1e-12,
                                                         maxiter=250)
     assert(np.all(res1.params == exposuremod.params))

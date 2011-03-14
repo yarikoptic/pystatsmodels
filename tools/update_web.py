@@ -102,7 +102,7 @@ def get_branch(branch, lp_name):
     Returns the name of the new branch directory.
     """
     dirs = getdirs()
-    retcode = subprocess.call(["bzr", "branch", "lp:"+lp_name, 
+    retcode = subprocess.call(["bzr", "branch", "lp:"+lp_name,
         os.path.join(dname,branch)])
     if retcode != 0:
         msg = """Could not create branch %s.""" % branch
@@ -130,7 +130,7 @@ def install_branch(branch_dir):
     if retcode != 0:
         msg = """ Could not build branch %s""" % branch_dir
         raise Exception(msg)
-    retcode = subprocess.call([virtual_python, os.path.join(dname, branch_dir, 
+    retcode = subprocess.call([virtual_python, os.path.join(dname, branch_dir,
         'setup.py'), 'install'])
     if retcode != 0:
         os.chdir(dname)
@@ -138,9 +138,9 @@ def install_branch(branch_dir):
         raise Exception(msg)
     os.chdir(dname)
 
-def build_docs(new_branch_dir): 
+def build_docs(new_branch_dir):
     """
-    Changes into new_branch_dir and builds the docs using sphinx in the 
+    Changes into new_branch_dir and builds the docs using sphinx in the
     BUILDENV virtualenv
     """
 #    old_cwd = os.getcwd()
@@ -158,18 +158,48 @@ def build_docs(new_branch_dir):
         raise Exception(msg)
     os.chdir(old_cwd)
 
+def build_pdf(new_branch_dir):
+    """
+    Changes into new_branch_dir and builds the docs using sphinx in the
+    BUILDENV virtualenv
+    """
+    old_cwd = dname
+    os.chdir(os.path.join(dname,new_branch_dir,'scikits','statsmodels','docs'))
+    sphinx_dir = os.path.join(virtual_dir,'bin')
+    retcode = subprocess.call(['make','latexpdf',
+        'SPHINXBUILD='+sphinx_dir+'/sphinx-build'])
+    if retcode != 0:
+        os.chdir(old_cwd)
+        msg = """Could not build the pdf docs for branch %s""" % new_branch_dir
+        raise Exception(msg)
+    os.chdir(old_cwd)
+
 def upload_docs(branch, new_branch_dir):
 #    old_cwd = os.getcwd()
     old_cwd = dname
     os.chdir(os.path.join(dname, new_branch_dir,'scikits','statsmodels','docs'))
-    retcode = subprocess.call(['rsync', '-avPr' ,'-e ssh', 'build/html/', 
+    retcode = subprocess.call(['rsync', '-avPr' ,'-e ssh', 'build/html/',
         'jseabold,statsmodels@web.sourceforge.net:htdocs/'+branch])
     if retcode != 0:
         os.chdir(old_cwd)
-        msg = """Could not upload to %s for branch %s""" % (branch,
+        msg = """Could not upload html to %s for branch %s""" % (branch,
                 new_branch_dir)
         raise Exception(msg)
     os.chdir(old_cwd)
+
+def upload_pdf(branch, new_branch_dir):
+    old_cwd = dname
+    os.chdir(os.path.join(dname, new_branch_dir,'scikits','statsmodels','docs'))
+    retcode = subprocess.call(['rsync', '-avPr', '-e ssh',
+        'build/latex/statsmodels.pdf',
+        'jseabold,statsmodels@web.sourceforge.net:htdocs/'+branch+'pdf/'])
+    if retcode != 0:
+        os.chdir(old_cwd)
+        msg = """Could not upload pdf to %s for branch %s""" % (branch+'/pdf',
+                new_branch_dir)
+        raise Exception(msg)
+    os.chdir(old_cwd)
+
 
 def email_me(status='ok'):
     if status == 'ok':
@@ -185,7 +215,7 @@ HTML Documentation uploaded successfully.
     msg['Subject'] = subject
     msg['From'] = email_name
     msg['To'] = email_name
-    
+
     server = smtplib.SMTP('smtp.gmail.com',587)
     server.ehlo()
     server.starttls()
@@ -202,18 +232,20 @@ msg = ''
 for branch in branches:
     os.chdir(dname)
     try:
-        # get directories to restore after done 
+        # get directories to restore after done
         dirs = getdirs()
 
         new_branch_dir = get_branch(branch, branches[branch])
-#        newdirectory = newdir(dirs) 
+#        newdirectory = newdir(dirs)
         install_branch(new_branch_dir)
         build_docs(new_branch_dir)
         upload_docs(branch, new_branch_dir)
 
-        #TODO: should this just go into the branch and update it instead of 
+        #TODO: should this just go into the branch and update it instead of
         #downloading the whole thing each time?
-        # cleanup
+
+#        build_pdf(new_branch_dir)
+#        upload_pdf(branch, new_branch_dir)
     except Exception as status:
         msg += status.args[0] + '\n'
     shutil.rmtree(os.path.join(dname,new_branch_dir))
@@ -222,7 +254,7 @@ if msg == '': # if it doesn't something went wrong and was caught above
     email_me()
 else:
     email_me(msg)
-    
+
 
 
 

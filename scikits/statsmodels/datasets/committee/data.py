@@ -42,7 +42,7 @@ __all__ = ['COPYRIGHT','TITLE','SOURCE','DESCRSHORT','DESCRLONG','NOTE', 'load']
 
 __docformat__ = 'restructuredtext'
 
-COPYRIGHT   = """Used with expressed permission from the original author, 
+COPYRIGHT   = """Used with express permission from the original author,
 who retains all rights."""
 TITLE       = "First 100 days of 1995 US House Dataset"
 SOURCE      = """
@@ -54,11 +54,11 @@ http://jgill.wustl.edu/research/books.html
 DESCRSHORT  = """Number of bill assignments in the 104th House in 1995"""
 
 DESCRLONG   = """
-The example in Gill, seeks to explain the number of bill assignments in the 
-first 100 days of the US' 104th House of Representatives.  The response 
-variable is the number of bill assignments in the first 100 days over 20 
-Committees.  The explanatory variables in the example are the number of 
-assignments in the first 100 days of the 103rd House, the number of members on 
+The example in Gill, seeks to explain the number of bill assignments in the
+first 100 days of the US' 104th House of Representatives.  The response
+variable is the number of bill assignments in the first 100 days over 20
+Committees.  The explanatory variables in the example are the number of
+assignments in the first 100 days of the 103rd House, the number of members on
 the committee, the number of subcommittees, the log of the number of staff
 assigned to the committee, a dummy variable indicating whether
 the committee is a high prestige committee, and an interaction term between
@@ -70,7 +70,7 @@ The original source files are included in /committee/src/
 """
 
 NOTE = """
-Number of Observations: 20 
+Number of Observations: 20
 Number of Variables: 6
 Variable name definitions:
     BILLS104 : Number of bill assignments in the first 100 days of the 104th
@@ -82,7 +82,7 @@ Variable name definitions:
     BILLS103 : Number of bill assignments in the first 100 days of the 103rd
         House of Representatives.
 
-Committee names are included as a variable in the data file though not 
+Committee names are included as a variable in the data file though not
 returned by load.
 """
 
@@ -92,14 +92,14 @@ from os.path import dirname, abspath
 
 def load():
     """Load the committee data and returns a data class.
-   
+
     Returns
     --------
-    Dataset instance: 
+    Dataset instance:
         See DATASET_PROPOSAL.txt for more information.
     """
     filepath = dirname(abspath(__file__))
-    data = recfromtxt(filepath + '/committee.csv', delimiter=",", 
+    data = recfromtxt(filepath + '/committee.csv', delimiter=",",
             names=True, dtype=float, usecols=(1,2,3,4,5,6))
 
     names = list(data.dtype.names)
