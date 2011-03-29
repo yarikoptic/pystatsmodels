@@ -12,7 +12,8 @@ override_dh_auto_build:
 	dh_auto_build
 	: # Build Documentation
 ifeq (,$(filter nodoc,$(DEB_BUILD_OPTIONS)))
-	PYTHONPATH=$(CURDIR) $(MAKE) -C scikits/statsmodels/docs html
+	export PYTHONPATH=$(CURDIR) MPLCONFIGDIR=$(CURDIR)/build HOME=$(CURDIR)/build; \
+	 $(MAKE) -C scikits/statsmodels/docs html
 	mv scikits/statsmodels/docs/build/* build/
 	rm -rf statsmodels/docs/source/generated/
 endif
@@ -36,7 +37,7 @@ override_dh_auto_test:
 
 ## immediately useable documentation and exemplar scripts/data
 override_dh_compress:
-	dh_compress -X.py -X.html -X.pdf -X.css -X.jpg -X.txt -X.js -X.json -X.rtc
+	dh_compress -X.py -X.html -X.pdf -X.css -X.jpg -X.txt -X.js -X.json -X.rtc -X.inv
 
 override_dh_installdocs:
 	: # Use jquery from Debian package, so prune shipped one
