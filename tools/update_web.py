@@ -18,6 +18,9 @@ import re
 import smtplib
 import sys
 from email.MIMEText import MIMEText
+import matplotlib as mpl
+mpl.use('agg') # set backend here, cron does not have an X11 server, so can't
+               # use a graphical backend
 
 ######### INITIAL SETUP ##########
 
