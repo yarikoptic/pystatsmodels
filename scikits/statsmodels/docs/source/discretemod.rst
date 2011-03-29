@@ -1,4 +1,4 @@
-.. currentmodule:: scikits.statsmodels.discretemod
+.. currentmodule:: scikits.statsmodels.discrete.discrete_model
 
 
 .. _discretemod:
@@ -30,7 +30,7 @@ specific methods and attributes.
 Example::
 
   # Load the data from Spector and Mazzeo (1980)
-  spector_data = sm.datasets.spector.Load()
+  spector_data = sm.datasets.spector.load()
   spector_data.exog = sm.add_constant(spector_data.exog)
   
   # Linear Probability Model using OLS
@@ -61,15 +61,15 @@ Example::
 References
 ^^^^^^^^^^
 
-General references for this class of models are
+General references for this class of models are::
 
-A.C. Cameron and P.K. Trivedi.  `Regression Analysis of Count Data`.  Cambridge,
-    1998
+    A.C. Cameron and P.K. Trivedi.  `Regression Analysis of Count Data`.  
+        Cambridge, 1998
 
-G.S. Madalla. `Limited-Dependent and Qualitative Variables in Econometrics`. 
-    Cambridge, 1983.
+    G.S. Madalla. `Limited-Dependent and Qualitative Variables in Econometrics`. 
+        Cambridge, 1983.
 
-W. Greene. `Econometric Analysis`. Prentice Hall, 5th. edition. 2003. 
+    W. Greene. `Econometric Analysis`. Prentice Hall, 5th. edition. 2003. 
 
 
 Examples

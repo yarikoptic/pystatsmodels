@@ -9,23 +9,24 @@ Author: josef-pktd
 import numpy as np
 from scipy import stats
 #from numpy.testing import assert_almost_equal
-import scikits.statsmodels as sm
+import scikits.statsmodels.api as sm
 from scikits.statsmodels.sandbox.regression.onewaygls import OneWayLS
 
 #choose example
 #--------------
-example = ['null', 'diff'][1]
+example = ['null', 'diff'][1]   #null: identical coefficients across groups
 example_size = [10, 100][0]
-example_groups = ['2', '2-2'][1]
+example_size = [(10,2), (100,2)][0]
+example_groups = ['2', '2-2'][1] 
 #'2-2': 4 groups, 
 #       groups 0 and 1 and groups 2 and 3 have identical parameters in DGP
 
 #generate example
 #----------------
 np.random.seed(87654589)
-nobs = example_size
-x1 = np.random.randn(nobs)
-y1 = 10 + 15*x1 + 2*np.random.randn(nobs)
+nobs, nvars = example_size
+x1 = np.random.normal(size=(nobs, nvars))
+y1 = 10 + np.dot(x1,[15.]*nvars) + 2*np.random.normal(size=nobs)
 
 x1 = sm.add_constant(x1) #, prepend=True)
 #assert_almost_equal(x1, np.vander(x1[:,0],2), 16)
@@ -36,11 +37,11 @@ x1 = sm.add_constant(x1) #, prepend=True)
 #print res1.summary(xname=['x1','const1'])
 
 #regression 2
-x2 = np.random.randn(nobs)
+x2 = np.random.normal(size=(nobs,nvars))
 if example == 'null':
-    y2 = 10 + 15*x2 + 2*np.random.randn(nobs)  # if H0 is true
+    y2 = 10 + np.dot(x2,[15.]*nvars) + 2*np.random.normal(size=nobs)  # if H0 is true
 else:   
-    y2 = 19 + 17*x2 + 2*np.random.randn(nobs)
+    y2 = 19 + np.dot(x2,[17.]*nvars) + 2*np.random.normal(size=nobs)
 
 x2 = sm.add_constant(x2)
 
@@ -61,13 +62,20 @@ def print_results(res):
     ft = res.ftest_summary()
     #print ft[0]  #skip because table is nicer
     print '\nTable of F-tests for overall or pairwise equality of coefficients'
-    print 'hypothesis F-statistic         p-value  df_denom df_num  reject'
-    for row in ft[1]: 
-        print row,
-        if row[1][1]<0.05:
-            print '*'
-        else:
-            print ''
+##    print 'hypothesis F-statistic         p-value  df_denom df_num  reject'
+##    for row in ft[1]: 
+##        print row,
+##        if row[1][1]<0.05:
+##            print '*'
+##        else:
+##            print ''
+    from scikits.statsmodels.iolib import SimpleTable
+    print SimpleTable([(['%r'%(row[0],)]
+                        + list(row[1])
+                        + ['*']*(row[1][1]>0.5).item() ) for row in ft[1]],
+                      headers=['pair', 'F-statistic','p-value','df_denom',
+                               'df_num'])
+    
     print 'Notes: p-values are not corrected for many tests'
     print '       (no Bonferroni correction)'
     print '       * : reject at 5% uncorrected confidence level'
@@ -94,6 +102,73 @@ def print_results(res):
     print 'variance    ', res.sigmabygroup
     print 'standard dev', np.sqrt(res.sigmabygroup)
 
+#now added to class 
+def print_results2(res):
+    groupind = res.groups
+    #res.fitjoint()  #not really necessary, because called by ftest_summary
+    ft = res.ftest_summary()
+    txt = ''
+    #print ft[0]  #skip because table is nicer
+    templ = \
+'''Table of F-tests for overall or pairwise equality of coefficients'
+%(tab)s
+
+
+Notes: p-values are not corrected for many tests
+       (no Bonferroni correction)
+       * : reject at 5%% uncorrected confidence level
+Null hypothesis: all or pairwise coefficient are the same'
+Alternative hypothesis: all coefficients are different'
+
+
+Comparison with stats.f_oneway
+%(statsfow)s
+
+
+Likelihood Ratio Test
+%(lrtest)s
+Null model: pooled all coefficients are the same across groups,' 
+Alternative model: all coefficients are allowed to be different'
+not verified but looks close to f-test result'
+
+
+Ols parameters by group from individual, separate ols regressions'
+%(olsbg)s
+for group in sorted(res.olsbygroup):
+    r = res.olsbygroup[group]
+    print group, r.params 
+
+
+Check for heteroscedasticity, '
+variance and standard deviation for individual regressions'
+%(grh)s
+variance    ', res.sigmabygroup
+standard dev', np.sqrt(res.sigmabygroup)
+'''
+
+    from scikits.statsmodels.iolib import SimpleTable
+    resvals = {}
+    resvals['tab'] = str(SimpleTable([(['%r'%(row[0],)]
+                        + list(row[1])
+                        + ['*']*(row[1][1]>0.5).item() ) for row in ft[1]],
+                      headers=['pair', 'F-statistic','p-value','df_denom',
+                               'df_num']))
+    resvals['statsfow'] = str(stats.f_oneway(*[y[groupind==gr] for gr in
+                                               res.unique]))
+    #resvals['lrtest'] = str(res.lr_test())
+    resvals['lrtest'] = str(SimpleTable([res.lr_test()],
+                                headers=['likelihood ratio', 'p-value', 'df'] ))
+
+    resvals['olsbg'] = str(SimpleTable([[group]
+                                        + res.olsbygroup[group].params.tolist()
+                                        for group in sorted(res.olsbygroup)]))
+    resvals['grh'] = str(SimpleTable(np.vstack([res.sigmabygroup,
+                                           np.sqrt(res.sigmabygroup)]),
+                                 headers=res.unique.tolist()))
+
+    return templ % resvals
+
+
 
 #get results for example
 #-----------------------
@@ -103,7 +178,7 @@ print   '-------------------------------------------------------------'
 res = OneWayLS(y,x, groups=groupind.astype(int))
 print_results(res)
 
-print '\nOne way ANOVA, constant is the only regressor'
+print '\n\nOne way ANOVA, constant is the only regressor'
 print   '---------------------------------------------'
 
 print 'this is the same as scipy.stats.f_oneway'
@@ -111,10 +186,11 @@ res = OneWayLS(y,np.ones(len(y)), groups=groupind)
 print_results(res)
 
 
-print '\nOne way ANOVA, constant is the only regressor with het is true'
+print '\n\nOne way ANOVA, constant is the only regressor with het is true'
 print   '--------------------------------------------------------------'
 
 print 'this is the similar to scipy.stats.f_oneway,' 
 print 'but variance is not assumed to be the same across groups'
-res = OneWayLS(y,np.ones(len(y)), groups=groupind, het=True)
+res = OneWayLS(y,np.ones(len(y)), groups=groupind.astype(str), het=True)
 print_results(res)
+print res.print_summary() #(res)

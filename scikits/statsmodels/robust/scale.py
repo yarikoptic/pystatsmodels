@@ -12,7 +12,7 @@ R Venables, B Ripley. 'Modern Applied Statistics in S'
 import numpy as np
 from scipy.stats import norm as Gaussian
 import norms
-from scikits.statsmodels import tools
+from scikits.statsmodels.tools import tools
 
 def mad(a, c=Gaussian.ppf(3/4.), axis=0):  # c \approx .6745
     """
@@ -84,7 +84,7 @@ class Huber(object):
     Examples
     --------
     >>> import numpy as np
-    >>> import scikits.statsmodels as sm
+    >>> import scikits.statsmodels.api as sm
     >>> chem_data = np.array([2.20, 2.20, 2.4, 2.4, 2.5, 2.7, 2.8, 2.9, 3.03, 
     ...        3.03, 3.10, 3.37, 3.4, 3.4, 3.4, 3.5, 3.6, 3.7, 3.7, 3.7, 3.7,
     ...        3.77, 5.28, 28.95])
@@ -220,8 +220,8 @@ class HuberScale(object):
 
     where the Huber function is
     
-    chi(x) = (x**2)/2       for |x| < d
-    chi(x) = (d**2)/2       for |x| >= d
+    chi(x) = (x**2)/2       for \|x\| < d
+    chi(x) = (d**2)/2       for \|x\| >= d
 
     and the Huber constant h = (n-p)/n*(d**2 + (1-d**2)*\
             scipy.stats.norm.cdf(d) - .5 - d*sqrt(2*pi)*exp(-0.5*d**2)
@@ -247,7 +247,7 @@ class HuberScale(object):
             scalehist.append(nscale)
             niter += 1
             if niter == self.maxiter:
-                raise ValueError, "Huber's scale failed to converge"
+                raise ValueError("Huber's scale failed to converge")
         return scalehist[-1]
 
 hubers_scale = HuberScale()

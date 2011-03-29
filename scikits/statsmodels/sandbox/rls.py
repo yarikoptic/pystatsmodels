@@ -1,7 +1,11 @@
-"""Restricted least squares"""
+"""Restricted least squares
+
+from pandas
+License: Simplified BSD
+"""
 
 import numpy as np
-from scikits.statsmodels.regression import WLS, GLS, RegressionResults
+from scikits.statsmodels.regression.linear_model import WLS, GLS, RegressionResults
 
 class RLS(GLS):
     """
@@ -138,10 +142,11 @@ class RLS(GLS):
         return lfit
 
 if __name__=="__main__":
-    import scikits.statsmodels as sm
+    import scikits.statsmodels.api as sm
     dta = np.genfromtxt('./rlsdata.txt', names=True)
     design = np.column_stack((dta['Y'],dta['Y']**2,dta[['NE','NC','W','S']].view(float).reshape(dta.shape[0],-1)))
     design = sm.add_constant(design, prepend=True)
     rls_mod = RLS(dta['G'],design, constr=[0,0,0,1,1,1,1])
     rls_fit = rls_mod.fit()
+    print rls_fit.params
 

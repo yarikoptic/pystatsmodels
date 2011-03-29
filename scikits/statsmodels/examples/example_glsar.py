@@ -12,8 +12,8 @@ written, and GLSAR is still being worked on.
 import numpy as np
 import numpy.testing as npt
 from scipy import signal
-import scikits.statsmodels as sm
-from scikits.statsmodels.regression import GLSAR, yule_walker
+import scikits.statsmodels.api as sm
+from scikits.statsmodels.regression.linear_model import GLSAR, yule_walker
 
 examples_all = range(10) + ['test_copy']
 
@@ -37,7 +37,7 @@ if 0 in examples:
     model0if = GLSAR(Y, X, 2)
     res = model0if.iterative_fit(6)
     print 'iterativefit beta', res.params
-    results.t() # is this correct? it does equal params/bse
+    results.tvalues # is this correct? it does equal params/bse
     # but isn't the same as the AR example (which was wrong in the first place..)
     print results.t_test([0,1])  # are sd and t correct? vs 
     print results.f_test(np.eye(2))

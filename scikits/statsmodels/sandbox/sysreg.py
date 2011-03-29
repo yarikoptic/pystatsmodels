@@ -1,7 +1,7 @@
-from scikits.statsmodels.regression import GLS
+from scikits.statsmodels.regression.linear_model import GLS
 import numpy as np
-from scikits.statsmodels import tools
-from scikits.statsmodels.model import LikelihoodModelResults
+import scikits.statsmodels.tools.tools as tools
+from scikits.statsmodels.base.model import LikelihoodModelResults
 from scipy import sparse
 
 #http://www.irisa.fr/aladin/wg-statlin/WORKSHOPS/RENNES02/SLIDES/Foschi.pdf
@@ -51,7 +51,7 @@ class SUR(object):
         RHS array stacked next to each other in columns.
     history : dict
         Contains the history of fitting the model. Probably not of interest
-        if the model is fit with `igls`=False.
+        if the model is fit with `igls` = False.
     iterations : int
         The number of iterations until convergence if the model is fit
         iteratively.
@@ -59,7 +59,7 @@ class SUR(object):
         The number of observations of the equations.
     normalized_cov_params : array
         sum(p_{m}) x sum(p_{m}) array 
-        :math:`\left[X^{T}\left(\Sigma^{-1}\otimes\boldsymbol{I}\right)X\right]^{-1}
+        :math:`\\left[X^{T}\\left(\\Sigma^{-1}\\otimes\\boldsymbol{I}\\right)X\\right]^{-1}`
     pinv_wexog : array
         The pseudo-inverse of the `wexog`
     sigma : array
@@ -73,23 +73,16 @@ class SUR(object):
     wexog : array
         M*nobs x sum(p_{m}) array of the whitened exogenous variables.
 
-    Methods
-    -------
-    initialize
-    fit
-    predict
-    whiten
-
     Notes
     -----
     All individual equations are assumed to be well-behaved, homoeskedastic
-    iid errors.  This is basically just an extension of GLS, using sparse
-    matrices.
+    iid errors.  This is basically an extension of GLS, using sparse matrices.
 
     .. math:: \\Sigma=\\left[\\begin{array}{cccc}
-\\sigma_{11} & \\sigma_{12} & \\cdots & \\sigma_{1M}\\
-\\sigma_{21} & \\sigma_{22} &  & \\sigma_{2M}\\
-\\vdots &  & \\ddots\\
+              \\sigma_{11} & \\sigma_{12} & \\cdots & \\sigma_{1M}\\\\
+              \\sigma_{21} & \\sigma_{22} & \\cdots & \\sigma_{2M}\\\\
+              \\vdots & \\vdots & \\ddots & \\vdots\\\\
+              \\sigma_{M1} & \\sigma_{M2} & \\cdots & \\sigma_{MM}\\end{array}\\right]
     
     References
     ----------
@@ -98,11 +91,11 @@ class SUR(object):
 #TODO: Does each equation need nobs to be the same?
     def __init__(self, sys, sigma=None, dfk=None):
         if len(sys) % 2 != 0:
-            raise ValueError, "sys must be a list of pairs of endogenous and \
-exogenous variables.  Got length %s" % len(sys)
+            raise ValueError("sys must be a list of pairs of endogenous and \
+exogenous variables.  Got length %s" % len(sys))
         if dfk:
             if not dfk.lower() in ['dfk1','dfk2']:
-                raise ValueError, "dfk option %s not understood" % (dfk)
+                raise ValueError("dfk option %s not understood" % (dfk))
         self._dfk = dfk
         M = len(sys[1::2])
         self._M = M
@@ -201,7 +194,7 @@ exogenous variables.  Got length %s" % len(sys)
         Returns
         -------
         If X is the exogenous RHS of the system.
-        np.dot(np.kron(cholsigmainv,np.eye(M)),np.diag(X))
+        ``np.dot(np.kron(cholsigmainv,np.eye(M)),np.diag(X))``
 
         If X is the endogenous LHS of the system.
 
@@ -290,8 +283,8 @@ class Sem2SLS(object):
     """
     def __init__(self, sys, indep_endog=None, instruments=None):
         if len(sys) % 2 != 0:
-            raise ValueError, "sys must be a list of pairs of endogenous and \
-exogenous variables.  Got length %s" % len(sys)
+            raise ValueError("sys must be a list of pairs of endogenous and \
+exogenous variables.  Got length %s" % len(sys))
         M = len(sys[1::2])
         self._M = M
 # The lists are probably a bad idea
@@ -320,8 +313,8 @@ exogenous variables.  Got length %s" % len(sys)
                 iter(indep_endog[eq_key])
             except:
 #                eq_key = [eq_key]
-                raise TypeError, "The values of the indep_exog dict must be\
- iterable. Got type %s for converter %s" % (type(del_col))
+                raise TypeError("The values of the indep_exog dict must be\
+ iterable. Got type %s for converter %s" % (type(del_col)))
 #            for del_col in indep_endog[eq_key]:
 #                fullexog = np.delete(fullexog,  _col_map[eq_key]+del_col, 1)
 #                _col_map[eq_key+1:] -= 1     

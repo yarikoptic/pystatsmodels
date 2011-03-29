@@ -62,11 +62,9 @@ def descstats(data, cols=None, axis=0):
     axis: 1 or 0
         axis order of data.  Default is 0 for column-ordered data.
 
-    Example
-    ----------simple
-    >>>
-    decstats(data.exog,v=['x_1','x_2','x_3'])
-
+    Examples
+    --------
+    >>> descstats(data.exog,v=['x_1','x_2','x_3'])
     '''
 
     x = np.array(data)  # or rather, the data we're interested in
@@ -201,9 +199,9 @@ def descstats(data, cols=None, axis=0):
 #    descstats(ndts, [1,20,3])
 
 if __name__ == '__main__':
-    import scikits.statsmodels as sm
+    import scikits.statsmodels.api as sm
     import os
-    data = sm.datasets.longley.Load()
+    data = sm.datasets.longley.load()
     data.exog = sm.add_constant(data.exog)
     sum1 = descstats(data.exog)
     sum1a = descstats(data.exog[:,:1])

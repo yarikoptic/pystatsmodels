@@ -3,7 +3,7 @@
 #TODO: this is going to change significantly once we have a panel data structure
 
 import numpy as np
-import scikits.statsmodels as sm
+import scikits.statsmodels.api as sm
 from scikits.statsmodels.sandbox.sysreg import *
 
 # Seemingly Unrelated Regressions (SUR) Model 
@@ -11,7 +11,7 @@ from scikits.statsmodels.sandbox.sysreg import *
 # This example uses the subset of the Grunfeld data in Greene's Econometric
 # Analysis Chapter 14 (5th Edition)
 
-grun_data = sm.datasets.grunfeld.Load()
+grun_data = sm.datasets.grunfeld.load()
 
 firms = ['General Motors', 'Chrysler', 'General Electric', 'Westinghouse', 
         'US Steel']
@@ -69,7 +69,7 @@ print grun_ires.params
 # See Greene's Econometric Analysis for more information
 
 # Load the data
-macrodata = sm.datasets.macrodata.Load().data
+macrodata = sm.datasets.macrodata.load().data
 
 # Not needed, but make sure the data is sorted
 macrodata = np.sort(macrodata, order=['year','quarter'])

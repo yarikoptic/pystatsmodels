@@ -3,7 +3,7 @@
 Note: uncomment plt.show() to display graphs
 '''
 import numpy as np
-import scikits.statsmodels as sm
+import scikits.statsmodels.api as sm
 from scipy import stats
 from matplotlib import pyplot as plt
 
@@ -25,7 +25,7 @@ from matplotlib import pyplot as plt
 # The median teacher salary including benefits in 1000s "AVSALK"
 # The mean teacher experience in years "AVYRSEXP",
 # The per-pupil expenditures in thousands "PERSPENK"
-# The parent-teacher ratio "PTRATIO"
+# The pupil-teacher ratio "PTRATIO"
 # The percent of students taking college credit courses "PCTAF",
 # The percentage of charter schools in the districut "PCTCHRT"
 # The percent of schools in the district operating year round "PCTYRRND"
@@ -33,7 +33,7 @@ from matplotlib import pyplot as plt
 # "AVYRSEXP_AVSAL","PERSPEN_PTRATIO","PERSPEN_PCTAF","PTRATIO_PCTAF",
 # "PERMINTE_AVYRSEXP_AVSAL","PERSPEN_PTRATIO_PCTAF"
 
-data = sm.datasets.star98.Load()
+data = sm.datasets.star98.load()
 data.exog = sm.add_constant(data.exog)
 
 print """The response variable is (success, failure).  Eg., the first 
@@ -41,18 +41,13 @@ observation is """, data.endog[0]
 print"""Giving a total number of trials for this observation of
 """, data.endog[0].sum()
 
-glm_binom = sm.GLM(data.endog, data.exog, family=sm.family.Binomial())
+glm_binom = sm.GLM(data.endog, data.exog, family=sm.families.Binomial())
 
-### In order to fit this model, you must (for now) specify the number of 
-### trials per observation ie., success + failure
-### This is the only time the data_weights argument should be used.
-
-trials = data.endog.sum(axis=1)
-binom_results = glm_binom.fit(data_weights=trials)
+binom_results = glm_binom.fit()
 print """The fitted values are
 """, binom_results.params
 print """The corresponding t-values are
-""", binom_results.t()
+""", binom_results.tvalues
 
 # It is common in GLMs with interactions to compare first differences.
 # We are interested in the difference of the impact of the explanatory variable
@@ -66,8 +61,8 @@ means25 = means.copy()
 means25[0] = stats.scoreatpercentile(data.exog[:,0], 25)
 means75 = means.copy()
 means75[0] = lowinc_75per = stats.scoreatpercentile(data.exog[:,0], 75)
-resp_25 = glm_binom.family.fitted(np.inner(means25, binom_results.params)) 
-resp_75 = glm_binom.family.fitted(np.inner(means75, binom_results.params)) 
+resp_25 = glm_binom.predict(means25) 
+resp_75 = glm_binom.predict(means75)
 diff = resp_75 - resp_25
 print """The interquartile first difference for the percentage of low income
 households in a school district is %2.4f %%""" % (diff*100)
@@ -76,13 +71,13 @@ means0 = means.copy()
 means100 = means.copy()
 means0[0] = data.exog[:,0].min()
 means100[0] = data.exog[:,0].max()
-resp_0 = glm_binom.family.fitted(np.inner(means0, binom_results.params)) 
-resp_100 = glm_binom.family.fitted(np.inner(means100, binom_results.params)) 
+resp_0 = glm_binom.predict(means0) 
+resp_100 = glm_binom.predict(means100) 
 diff_full = resp_100 - resp_0
 print """The full range difference is %2.4f %%""" % (diff_full*100)
 
 nobs = binom_results.nobs
-y = data.endog[:,0]/trials
+y = data.endog[:,0]/data.endog.sum(1)
 yhat = binom_results.mu
 
 # Plot of yhat vs y
@@ -136,9 +131,9 @@ plt.xlabel('Quantiles of N(0,1)')
 ### Example for using GLM Gamma for a proportional count response
 # Brief description of the data and design
 # print sm.datasets.scotland.DESCRLONG
-data2 = sm.datasets.scotland.Load()
+data2 = sm.datasets.scotland.load()
 data2.exog = sm.add_constant(data2.exog)
-glm_gamma = sm.GLM(data2.endog, data2.exog, family=sm.family.Gamma())
+glm_gamma = sm.GLM(data2.endog, data2.exog, family=sm.families.Gamma())
 glm_results = glm_gamma.fit()
 
 ### Example for Gaussian distribution with a noncanonical link
@@ -148,5 +143,5 @@ np.random.seed(54321)
 X = np.column_stack((x,x**2))
 X = sm.add_constant(X)
 lny = np.exp(-(.03*x + .0001*x**2 - 1.0)) + .001 * np.random.rand(nobs2)
-gauss_log = sm.GLM(lny, X, family=sm.family.Gaussian(sm.family.links.log))
+gauss_log = sm.GLM(lny, X, family=sm.families.Gaussian(sm.families.links.log))
 gauss_log_results = gauss_log.fit()

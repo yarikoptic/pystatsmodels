@@ -9,7 +9,7 @@ in ANOVA
 
 import numpy as np
 #from scipy import stats
-import scikits.statsmodels as sm
+import scikits.statsmodels.api as sm
 
 
 dt_b = np.dtype([('breed', int), ('sex', int), ('litter', int), 
@@ -137,6 +137,12 @@ def anovadict(res):
     '''
     ad = {}
     ad.update(res.__dict__)
+    anova_attr = ['df_model', 'df_resid', 'ess', 'ssr','uncentered_tss',
+                 'mse_model', 'mse_resid', 'mse_total', 'fvalue', 'f_pvalue',
+                  'rsquared']
+    for key in anova_attr:
+        ad[key] = getattr(res, key)
+    ad['nobs'] = res.model.nobs
     ad['ssmwithmean'] = res.uncentered_tss - res.ssr
     return ad
 

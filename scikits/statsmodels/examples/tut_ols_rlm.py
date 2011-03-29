@@ -7,7 +7,7 @@ Note: uncomment plt.show() to display graphs
 
 import numpy as np
 #from scipy import stats
-import scikits.statsmodels as sm
+import scikits.statsmodels.api as sm
 import matplotlib.pyplot as plt
 from scikits.statsmodels.sandbox.regression.predstd import wls_prediction_std
 
@@ -80,4 +80,4 @@ plt.title('blue: true,   red: OLS,   green: RLM')
 # see also help(sm.RLM.fit) for more options and 
 # module sm.robust.scale for scale options
 
-#plt.show()
+plt.show()

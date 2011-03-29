@@ -1,10 +1,13 @@
-.. currentmodule:: scikits.statsmodels.tools
+.. currentmodule:: scikits.statsmodels.tools.tools
 
 
 .. _tools:
 
 Tools
 =====
+
+Module Reference
+----------------
 
 .. autosummary::
    :toctree: generated/

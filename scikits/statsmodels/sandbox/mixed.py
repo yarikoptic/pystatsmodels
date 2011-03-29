@@ -130,7 +130,7 @@ class Unit(object):
             return (np.log(L.det(self.W)) - (self.r * np.dot(self.W, self.r)).sum()) / 2.
         else:
             if a is None:
-                raise ValueError, 'need fixed effect a for REML contribution to log-likelihood'
+                raise ValueError('need fixed effect a for REML contribution to log-likelihood')
             r = self.Y - np.dot(self.X, a)
             return (np.log(L.det(self.W)) - (r * np.dot(self.W, r)).sum()) / 2.
 
@@ -163,7 +163,7 @@ class Mixed(object):
 
         self.N = 0
         for unit in self.units:
-            unit.Y = np.squeeze(unit.design(self.response)) # respnose is just 'y'
+            unit.Y = np.squeeze(unit.design(self.response)) # response is just 'y'
             unit.X = unit.design(self.fixed)
             unit.Z = unit.design(self.random)
             self.N += unit.X.shape[0]

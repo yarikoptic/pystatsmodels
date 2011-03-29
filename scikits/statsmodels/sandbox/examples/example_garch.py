@@ -7,9 +7,9 @@ import matplotlib.pyplot as plt
 #import scikits.timeseries as ts
 #import scikits.timeseries.lib.plotlib as tpl
 
-import scikits.statsmodels as sm
-from scikits.statsmodels.sandbox import tsa
-from scikits.statsmodels.sandbox.regression.mle import *  # local import
+import scikits.statsmodels.api as sm
+#from scikits.statsmodels.sandbox import tsa
+from scikits.statsmodels.sandbox.tsa.garch import *  # local import
 
 #dta2 = ts.tsfromtxt(r'gspc_table.csv',
 #        datecols=0, skiprows=0, delimiter=',',names=True, freq='D')

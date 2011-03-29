@@ -5,8 +5,23 @@ some dimension problems
 fixed import errors
 currently produces parameter estimate but then raises exception for other results
 
+
 finally, after running the script several times, I get a OSError with too many
 open file handles
+
+updates and changes :
+
+as of 2010-05-15
+AttributeError: 'CoxPH' object has no attribute 'cachedir'
+Traceback (most recent call last):
+  File "C:\...\scikits\statsmodels\sandbox\cox.py", line 244, in <module>
+    res = c.newton([0.4])
+AttributeError: 'CoxPH' object has no attribute 'newton'
+
+replaced newton by call to new fit method for mle with bfgs
+
+feels very slow
+need testcase before trying to fix
 
 '''
 
@@ -17,7 +32,7 @@ import tempfile
 import numpy as np
 
 
-from scikits.statsmodels import model
+from scikits.statsmodels.base import model
 import survival
 
 class Discrete(object):
@@ -40,12 +55,12 @@ class Discrete(object):
             w = np.ones(self.n, np.float64)
         else:
             if w.shape[0] != self.n:
-                raise ValueError, 'incompatible shape for weights w'
+                raise ValueError('incompatible shape for weights w')
             if np.any(np.less(w, 0)):
-                raise ValueError, 'weights should be non-negative'
+                raise ValueError('weights should be non-negative')
         self.w = w*1.0 / w.sum()
 
-    def mean(self, f=None):
+    def mean(self, f=None):   #JP: this is expectation, "expect" in mine
         if f is None:
             fx = self.x
         else:
@@ -153,9 +168,10 @@ class CoxPH(model.LikelihoodModel):
                 for j in range(d):
                     logL -= np.log(s - j * r / d)
             elif ties == 'cox':
-                raise NotImplementedError, 'Cox tie breaking method not implemented'
+                raise NotImplementedError('Cox tie breaking method not \
+implemented')
             else:
-                raise NotImplementedError, 'tie breaking method not recognized'
+                raise NotImplementedError('tie breaking method not recognized')
         return logL
 
     def score(self, b, ties='breslow'):
@@ -182,9 +198,10 @@ class CoxPH(model.LikelihoodModel):
                     rv = Discrete(Z[risk], w=efron_w[risk])
                     score -= rv.mean()
             elif ties == 'cox':
-                raise NotImplementedError, 'Cox tie breaking method not implemented'
+                raise NotImplementedError('Cox tie breaking method not \
+implemented')
             else:
-                raise NotImplementedError, 'tie breaking method not recognized'
+                raise NotImplementedError('tie breaking method not recognized')
         return np.array([score])
 
     def information(self, b, ties='breslow'):
@@ -210,9 +227,10 @@ class CoxPH(model.LikelihoodModel):
                     rv = Discrete(Z[risk], w=efron_w[risk])
                     info += rv.cov()
             elif ties == 'cox':
-                raise NotImplementedError, 'Cox tie breaking method not implemented'
+                raise NotImplementedError('Cox tie breaking method not \
+implemented')
             else:
-                raise NotImplementedError, 'tie breaking method not recognized'
+                raise NotImplementedError('tie breaking method not recognized')
         return score
 
 if __name__ == '__main__':
@@ -241,8 +259,45 @@ if __name__ == '__main__':
     # no tempfile cache is created in normal use of CoxPH 
     
     
-    res = c.newton([0.4])
+    #res = c.newton([0.4])  #doesn't work anymore
+    res=c.fit([0.4],method="bfgs")
     print res.params
     print dir(c)
     #print c.fit(Y)
     #c.information(res.params)  #raises exception
+
+    '''
+    Note: Replacement for c.newton
+
+    >>> c.fit()
+    Traceback (most recent call last):
+      File "<pyshell#1>", line 1, in <module>
+        c.fit()
+      File "C:\Josef\eclipsegworkspace\statsmodels-josef-experimental\scikits\statsmodels\model.py", line 132, in fit
+        start_params = [0]*self.exog.shape[1] # will fail for shape (K,)
+    AttributeError: 'CoxPH' object has no attribute 'exog'
+    >>> c.fit([0.4])
+    Traceback (most recent call last):
+      File "<pyshell#2>", line 1, in <module>
+        c.fit([0.4])
+      File "C:\Josef\eclipsegworkspace\statsmodels-josef-experimental\scikits\statsmodels\model.py", line 148, in fit
+        H = self.hessian(history[-1])
+      File "C:\Josef\eclipsegworkspace\statsmodels-josef-experimental\scikits\statsmodels\model.py", line 115, in hessian
+        raise NotImplementedError
+    NotImplementedError
+    >>> c.fit([0.4],method="bfgs")
+    Optimization terminated successfully.
+             Current function value: 802.354181
+             Iterations: 3
+             Function evaluations: 5
+             Gradient evaluations: 5
+    <scikits.statsmodels.model.LikelihoodModelResults object at 0x01D48B70>
+    >>> res=c.fit([0.4],method="bfgs")
+    Optimization terminated successfully.
+             Current function value: 802.354181
+             Iterations: 3
+             Function evaluations: 5
+             Gradient evaluations: 5
+    >>> res.params
+    array([ 0.34924421])
+'''
