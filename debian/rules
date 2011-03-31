@@ -1,8 +1,10 @@
 #!/usr/bin/make -f
 # -*- mode: makefile; coding: utf-8 -*-
 
-# Uncomment this to turn on verbose mode.
-#export DH_VERBOSE=1
+# override HOME (for weave) and matplotlib config directory
+# to allow building in chroots with read-only HOME
+export HOME=$(CURDIR)/build
+export MPLCONFIGDIR=$(HOME)
 
 %:
 	dh  $@
@@ -10,9 +12,11 @@
 # Build docs during build
 override_dh_auto_build:
 	dh_auto_build
+    echo "backend : Agg" >| $(MPLCONFIGDIR)/matplotlibrc
+
 	: # Build Documentation
 ifeq (,$(filter nodoc,$(DEB_BUILD_OPTIONS)))
-	export PYTHONPATH=$(CURDIR) MPLCONFIGDIR=$(CURDIR)/build HOME=$(CURDIR)/build; \
+	export PYTHONPATH=$(CURDIR) ; \
 	 $(MAKE) -C scikits/statsmodels/docs html
 	mv scikits/statsmodels/docs/build/* build/
 	rm -rf statsmodels/docs/source/generated/
