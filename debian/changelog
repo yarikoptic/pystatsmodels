@@ -1,11 +1,11 @@
-statsmodels (0.3.0~bzr20110328-1) unstable; urgency=low
+statsmodels (0.3.0~bzr20110330-1) neurodebian; urgency=low
 
   * Fresh snapshot of BZR 0.3-devel series
   * Initial release (Closes: #570604)
 
  -- Yaroslav Halchenko <debian@onerussian.com>  Tue, 29 Mar 2011 17:48:04 -0400
 
-statsmodels (0.2.0+bzr1990-1) UNSTABLE; urgency=low
+statsmodels (0.2.0+bzr1990-1) neurodebian; urgency=low
 
   * Initial release -- rejected due to full list of copyrights
 
