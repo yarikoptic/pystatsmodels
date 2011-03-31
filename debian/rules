@@ -12,7 +12,7 @@ export MPLCONFIGDIR=$(HOME)
 # Build docs during build
 override_dh_auto_build:
 	dh_auto_build
-    echo "backend : Agg" >| $(MPLCONFIGDIR)/matplotlibrc
+	echo "backend : Agg" >| $(MPLCONFIGDIR)/matplotlibrc
 
 	: # Build Documentation
 ifeq (,$(filter nodoc,$(DEB_BUILD_OPTIONS)))
